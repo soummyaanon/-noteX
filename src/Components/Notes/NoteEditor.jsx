@@ -113,7 +113,7 @@ export default function Component({ userId }) {
   const debouncedSave = useCallback(
     debounce(() => {
       handleSave();
-    }, 3000),
+    }, 5000),
     [title, content]
   );
 
