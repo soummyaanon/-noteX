@@ -1,144 +1,152 @@
-import React, { useMemo, useEffect, useState, useCallback } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { logout, getProfileImage } from '../../Services/appwrite';
-import { Button } from "../ui/button";
+import React, { useEffect, useState, useCallback } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { logout, getProfileImage } from '../../Services/appwrite'
+import { Button } from "../ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { ModeToggle } from "../ui/mode-toggle";
-import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Progress } from "../ui/progress";
-import Logo from '../Logo/Logo';
-import { FiHome, FiLogIn, FiFileText, FiPlusSquare } from 'react-icons/fi'; // Import icons
+} from "../ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { ModeToggle } from "../ui/mode-toggle"
+import { Menu } from "lucide-react"
+import { Progress } from "../ui/progress"
+import Logo from '../Logo/Logo'
+import { FiHome, FiLogIn, FiFileText, FiPlusSquare, FiUser, FiLogOut } from 'react-icons/fi'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const Header = React.memo(({ user, setUser }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [profileImageUrl, setProfileImageUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [loadingProgress, setLoadingProgress] = useState(0);
+export default function Component({ user, setUser }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [profileImageUrl, setProfileImageUrl] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [loadingProgress, setLoadingProgress] = useState(0)
 
   const fetchProfileImage = useCallback(async () => {
     if (user?.profileImageId) {
       try {
-        const imageUrl = await getProfileImage(user.profileImageId);
-        setProfileImageUrl(imageUrl);
+        const imageUrl = await getProfileImage(user.profileImageId)
+        setProfileImageUrl(imageUrl)
       } catch (error) {
-        console.error('Error fetching profile image:', error);
+        console.error('Error fetching profile image:', error)
       }
     } else {
-      setProfileImageUrl(null);
+      setProfileImageUrl(null)
     }
-  }, [user]);
+  }, [user])
 
   useEffect(() => {
-    fetchProfileImage();
-  }, [fetchProfileImage, user]);
+    fetchProfileImage()
+    const refreshInterval = setInterval(fetchProfileImage, 5000) // Refresh every 5 seconds
+    return () => clearInterval(refreshInterval)
+  }, [fetchProfileImage])
 
   useEffect(() => {
-    setLoading(true);
-    setLoadingProgress(0);
+    setLoading(true)
+    setLoadingProgress(0)
     const timer = setInterval(() => {
       setLoadingProgress((oldProgress) => {
         if (oldProgress === 100) {
-          clearInterval(timer);
-          setLoading(false);
-          return 100;
+          clearInterval(timer)
+          setLoading(false)
+          return 100
         }
-        const diff = Math.random() * 20; // Increase the increment
-        return Math.min(oldProgress + diff, 100);
-      });
-    }, 50); // Reduce the interval duration
-    return () => clearInterval(timer);
-  }, [location]);
+        const diff = Math.random() * 20
+        return Math.min(oldProgress + diff, 100)
+      })
+    }, 50)
+    return () => clearInterval(timer)
+  }, [location])
 
   const handleLogout = useCallback(async () => {
     try {
-      setLoading(true);
-      await logout();
-      setUser(null);
-      navigate('/login');
+      setLoading(true)
+      await logout()
+      setUser(null)
+      navigate('/login')
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout failed:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [navigate, setUser]);
+  }, [navigate, setUser])
 
-  const NavItem = useCallback(({ to, icon }) => (
-    <Link to={to} className="relative group">
-      <Button variant="ghost" className="text-base font-medium">
-        {icon}
+  const NavItem = useCallback(({ to, icon: Icon, label }) => (
+    <Link to={to} className="relative group flex flex-col items-center">
+      <Button variant="ghost" size="icon" className="relative">
+        <Icon className="h-5 w-5" />
+        <span className="sr-only">{label}</span>
+        <motion.div
+          className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary origin-left"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: location.pathname === to ? 1 : 0 }}
+          transition={{ duration: 0.2 }}
+        />
       </Button>
-      <motion.div
-        className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary origin-left"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: location.pathname === to ? 1 : 0 }}
-        transition={{ duration: 0.2 }}
-      />
+      <span className="text-xs mt-1 hidden md:inline">{label}</span>
     </Link>
-  ), [location.pathname]);
+  ), [location.pathname])
 
-  const menuItems = useMemo(() => (
+  const navItems = (
     <>
-      <NavItem to="/" icon={<FiHome />} />
+      <NavItem to="/" icon={FiHome} label="Home" />
       {user ? (
         <>
-          <NavItem to="/notes" icon={<FiFileText />} />
-          <NavItem to="/new-note" icon={<FiPlusSquare />} />
+          <NavItem to="/notes" icon={FiFileText} label="Notes" />
+          <NavItem to="/new-note" icon={FiPlusSquare} label="New" />
         </>
       ) : (
-        <NavItem to="/login" icon={<FiLogIn />} />
+        <NavItem to="/login" icon={FiLogIn} label="Login" />
       )}
     </>
-  ), [user, NavItem]);
+  )
 
   return (
-    <header className="sticky top-0 backdrop-blur-lg bg-background/80 shadow-lg rounded-b-lg z-50">
+    <header className="sticky top-0 backdrop-blur-lg bg-background/80 shadow-lg z-50">
       {loading && (
         <Progress value={loadingProgress} className="h-1 w-full absolute top-0 left-0 z-50" />
       )}
-      <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center">
-          <Logo />
-        </Link>
-        
-        <div className="hidden md:flex items-center space-x-4">
-          {menuItems}
-          <ModeToggle />
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={profileImageUrl} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+      <nav className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <Logo />
+          </Link>
+          
+          <div className="hidden md:flex items-center space-x-4">
+            {navItems}
+          </div>
 
-        <div className="md:hidden flex items-center">
-          <ModeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X /> : <Menu />}
-          </Button>
+          <div className="flex items-center space-x-2">
+            <ModeToggle />
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={profileImageUrl} alt={user.name} />
+                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>
+                    <FiUser className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <FiLogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -151,12 +159,15 @@ const Header = React.memo(({ user, setUser }) => {
             transition={{ duration: 0.2 }}
             className="md:hidden bg-background/80 backdrop-blur-lg shadow-lg py-2"
           >
-            <div className="container mx-auto px-2 flex flex-col space-y-2">
-              {menuItems}
+            <div className="container mx-auto px-2 flex justify-around">
+              {navItems}
               {user && (
                 <>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/profile')}>Profile</Button>
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>Logout</Button>
+                  <NavItem to="/profile" icon={FiUser} label="Profile" />
+                  <Button variant="ghost" size="sm" onClick={handleLogout} className="flex flex-col items-center">
+                    <FiLogOut className="h-5 w-5" />
+                    <span className="text-xs mt-1">Logout</span>
+                  </Button>
                 </>
               )}
             </div>
@@ -164,7 +175,5 @@ const Header = React.memo(({ user, setUser }) => {
         )}
       </AnimatePresence>
     </header>
-  );
-});
-
-export default Header;
+  )
+}
