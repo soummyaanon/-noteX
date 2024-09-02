@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button } from "../ui/button"
 import { Separator } from "../ui/separator"
-import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import {
   Tooltip,
@@ -70,24 +69,20 @@ export default function AdvancedFooter() {
             </ul>
           </nav>
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Stay Updated</h3>
-            <form className="space-y-2" onSubmit={(e) => e.preventDefault()}>
-              <Label htmlFor="email" className="sr-only">Email</Label>
-              <div className="flex space-x-2">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-grow"
-                />
-                <Button type="submit" size="sm">
-                  Subscribe
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </form>
+            <h3 className="text-sm font-semibold text-primary">Feedback</h3>
+            <div className="space-y-2">
+              <iframe
+                src="https://p5vwt49z1jj.typeform.com/to/cY138u3C"
+                width="100%"
+                height="400px"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Feedback Form"
+              ></iframe>
+            </div>
             <p className="text-xs text-muted-foreground">
-              By subscribing, you agree to our Privacy Policy and consent to receive updates from our company.
+              We value your feedback. Please fill out the form to help us improve.
             </p>
           </div>
         </div>
