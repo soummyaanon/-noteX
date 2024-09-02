@@ -18,7 +18,7 @@ const Home = lazy(() => import('./Pages/Home'));
 const Editor = lazy(() => import('./Pages/Editor'));
 const UserProfile = lazy(() => import('./Components/Auth/UserProfile'));
 
-function App() {
+export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +47,7 @@ function App() {
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen bg-background text-foreground">
             <Header user={user} setUser={setUser} />
-            <main className="flex-grow container mx-auto px-4 py-8">
+            <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/" element={<Home user={user} />} />
@@ -87,5 +87,3 @@ function App() {
     </ThemeProvider>
   );
 }
-
-export default App;
