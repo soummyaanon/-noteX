@@ -51,6 +51,38 @@ export const createSessionWithEmailOTP = async (userId, secret) => {
 };
 
 /**
+ * Initiate Phone authentication
+ * @param {string} phoneNumber - User's phone number
+ * @returns {Promise<object>} - Session token object
+ */
+export const initiatePhoneAuth = async (phoneNumber) => {
+    try {
+        return await account.createPhoneToken(ID.unique(), phoneNumber);
+    } catch (error) {
+        console.error('Detailed error:', error);
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        }
+        throw error;
+    }
+};
+
+/**
+ * Create a session using Phone authentication
+ * @param {string} userId - User ID returned from initiatePhoneAuth
+ * @param {string} secret - OTP secret entered by the user
+ * @returns {Promise<object>} - Created session object
+ */
+export const createSessionWithPhoneAuth = async (userId, secret) => {
+    try {
+        return await account.createSession(userId, secret);
+    } catch (error) {
+        throw error;
+    }
+};
+
+/**
  * Logout the current user
  * @returns {Promise<void>}
  */
@@ -143,7 +175,6 @@ export const getDocument = async (collectionId, documentId) => {
     }
 };
 
-
 /**
  * Toggle the favorite status of a note
  * @param {string} noteId - The ID of the note to toggle
@@ -165,8 +196,6 @@ export const toggleNoteFavorite = async (noteId) => {
     throw error;
   }
 };
-
-
 
 /**
  * Update a document by ID
@@ -282,8 +311,6 @@ export const deleteProfileImage = async (fileId) => {
     }
 };
 
-
-
 /**
  * Delete the current user's account
  * @returns {Promise<void>}
@@ -324,7 +351,6 @@ export const deleteUserAccount = async () => {
         throw error;
     }
 };
-
 
 // Helper function
 
