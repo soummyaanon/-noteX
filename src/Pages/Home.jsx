@@ -14,9 +14,9 @@ const FeatureIcon = React.memo(({ Icon }) => (
   <motion.div
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
-    className="rounded-full bg-gradient-to-br from-primary/20 to-primary/30 p-2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center"
+    className="rounded-full bg-gradient-to-br from-primary/20 to-primary/30 p-2 w-10 h-10 flex items-center justify-center"
   >
-    <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" aria-hidden="true" />
+    <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
   </motion.div>
 ));
 
@@ -59,22 +59,22 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
+    whileHover={{ scale: 1.05 }}
     transition={{ duration: 0.3 }}
-    className="bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3 sm:p-4 hover:from-white/10 hover:to-white/20 transition-all duration-300 cursor-pointer group"
+    className="bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3 hover:from-white/10 hover:to-white/20 transition-all duration-300 cursor-pointer group"
     onClick={onClick}
   >
     <div className="flex items-center space-x-3">
       <motion.div
         whileHover={{ rotate: 360 }}
         transition={{ duration: 0.5 }}
-        className="rounded-full bg-primary/20 p-2 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center group-hover:bg-primary/30 transition-colors"
+        className="rounded-full bg-primary/20 p-2 w-8 h-8 flex items-center justify-center group-hover:bg-primary/30 transition-colors"
       >
-        <feature.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary group-hover:text-white transition-colors" aria-hidden="true" />
+        <feature.Icon className="w-4 h-4 text-primary group-hover:text-white transition-colors" aria-hidden="true" />
       </motion.div>
       <div>
-        <h3 className="font-semibold text-sm sm:text-base text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
-        <p className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
+        <h3 className="font-semibold text-sm text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
+        <p className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
   </motion.div>
@@ -109,9 +109,9 @@ export default function HomePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4 sm:space-y-6"
+      className="space-y-4"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -130,10 +130,10 @@ export default function HomePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mt-6 sm:mt-8 text-center"
+        className="mt-6 text-center"
       >
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-200 mb-2">Ready to boost your productivity?</h2>
-        <p className="text-sm sm:text-base text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
+        <h2 className="text-xl font-semibold text-gray-200 mb-2">Ready to boost your productivity?</h2>
+        <p className="text-sm text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
           size="lg"
@@ -157,20 +157,20 @@ export default function HomePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6 sm:space-y-8"
+      className="space-y-6"
     >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {notLoggedInFeatures.map((feature, index) => (
           <motion.div
             key={feature.title}
-            className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl backdrop-blur-sm"
+            className="flex flex-col items-center text-center p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}
+            whileHover={{ scale: 1.05 }}
           >
             <FeatureIcon Icon={feature.Icon} />
-            <h3 className="mt-4 font-semibold text-lg text-white">{feature.title}</h3>
+            <h3 className="mt-3 font-semibold text-lg text-white">{feature.title}</h3>
             <p className="mt-2 text-sm text-gray-300">{feature.description}</p>
           </motion.div>
         ))}
@@ -224,7 +224,7 @@ export default function HomePage() {
                 times: [0, 0.5, 1],
                 repeat: Infinity,
               }}
-              className="loader text-lg sm:text-xl"
+              className="loader text-lg"
               aria-live="polite"
             >
               Loading...
@@ -240,7 +240,7 @@ export default function HomePage() {
           >
             <Card className={cn("w-full max-w-4xl bg-black/10 backdrop-blur-lg shadow-xl")}>
               <CardHeader>
-                <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-extralightt font-Orbitron text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
+                <CardTitle className="text-2xl md:text-3xl font-extralight font-Orbitron text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
                   <Cover>
                     {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                   </Cover>
@@ -248,14 +248,14 @@ export default function HomePage() {
                 <FlipWords
                   words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
                   duration={3000}
-                  className="text-lg sm:text-l md:text-2xl font-extralight text-center mt-4 text-gray-200 font-Orbitron"
+                  className="text-lg md:text-xl font-extralight text-center mt-4 text-gray-200 font-Orbitron"
                 />
               </CardHeader>
               <CardContent>
                 {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
               </CardContent>
-              <CardFooter className="justify-center mt-4 sm:mt-6">
-                <p className="text-xs sm:text-sm text-gray-400">Discover the power of collaborative note-taking with noteX</p>
+              <CardFooter className="justify-center mt-4">
+                <p className="text-xs text-gray-400">Discover the power of collaborative note-taking with noteX</p>
               </CardFooter>
             </Card>
           </motion.div>
