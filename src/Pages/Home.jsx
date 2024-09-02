@@ -11,9 +11,13 @@ import { getCurrentUser } from '../Services/appwrite';
 import { Cover } from "../Components/ui/cover";
 
 const FeatureIcon = React.memo(({ Icon }) => (
-  <div className="rounded-full bg-primary/10 p-2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
+  <motion.div
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+    className="rounded-full bg-gradient-to-br from-primary/20 to-primary/30 p-2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center"
+  >
     <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" aria-hidden="true" />
-  </div>
+  </motion.div>
 ));
 
 const features = [
@@ -22,7 +26,7 @@ const features = [
   { title: "Search", description: "Find notes quickly", Icon: Search },
   { title: "Collaborate", description: "Invite others to your notes", Icon: Users },
   { title: "Favorites", description: "Access your starred notes", Icon: Star },
-  { title: "Smart AI", description: "Get AI-powered suggestions", Icon: Zap },
+  { title: "Google Gemini Pro", description: "Get AI-powered insights", Icon: Zap },
 ];
 
 const notLoggedInFeatures = [
@@ -35,7 +39,7 @@ const loggedInWords = [
   "Boost productivity",
   "Collaborate seamlessly",
   "Organize thoughts",
-  "AI-powered assistance",
+  "Gemini Pro insights",
   "Secure your ideas",
   "Access anywhere"
 ];
@@ -43,7 +47,7 @@ const loggedInWords = [
 const notLoggedInWords = [
   "Organize your thoughts",
   "Secure your notes",
-  "AI-powered assistance",
+  "Gemini Pro assistance",
   "Smart Semantic Search",
   "Your notes, your way",
   "Enhanced productivity",
@@ -55,14 +59,19 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
+    whileHover={{ scale: 1.05, boxShadow: "0 10px 20px rgba(0,0,0,0.1)" }}
     transition={{ duration: 0.3 }}
-    className="bg-white/5 rounded-lg p-3 sm:p-4 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+    className="bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3 sm:p-4 hover:from-white/10 hover:to-white/20 transition-all duration-300 cursor-pointer group"
     onClick={onClick}
   >
     <div className="flex items-center space-x-3">
-      <div className="rounded-full bg-primary/20 p-2 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+      <motion.div
+        whileHover={{ rotate: 360 }}
+        transition={{ duration: 0.5 }}
+        className="rounded-full bg-primary/20 p-2 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center group-hover:bg-primary/30 transition-colors"
+      >
         <feature.Icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary group-hover:text-white transition-colors" aria-hidden="true" />
-      </div>
+      </motion.div>
       <div>
         <h3 className="font-semibold text-sm sm:text-base text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
         <p className="text-xs sm:text-sm text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
@@ -71,7 +80,7 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
   </motion.div>
 ));
 
-const HomePage = () => {
+export default function HomePage() {
   const [authState, setAuthState] = useState({ isLoggedIn: false, isLoading: true, userName: '' });
   const navigate = useNavigate();
 
@@ -96,51 +105,101 @@ const HomePage = () => {
   const handleNavigation = useCallback((path) => () => navigate(path), [navigate]);
 
   const renderLoggedInContent = useCallback(() => (
-    <div className="space-y-4 sm:space-y-6">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-4 sm:space-y-6"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {features.map((feature) => (
-          <FeatureCard 
-            key={feature.title} 
-            feature={feature} 
-            onClick={feature.title === "Create Note" ? handleNavigation('/new-note') : undefined}
-          />
-        ))}
-      </div>
-      <div className="mt-6 sm:mt-8 text-center">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-200 mb-2">Ready to boost your productivity?</h2>
-        <p className="text-sm sm:text-base text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
-        <Button onClick={handleNavigation('/new-note')} size="lg" className="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105">
-          <Pencil className="mr-2 h-4 w-4 transition-transform group-hover:rotate-45" aria-hidden="true" />
-          Create New Note
-        </Button>
-      </div>
-    </div>
-  ), [handleNavigation]);
-
-  const renderNotLoggedInContent = useCallback(() => (
-    <div className="space-y-6 sm:space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {notLoggedInFeatures.map((feature, index) => (
+        {features.map((feature, index) => (
           <motion.div
             key={feature.title}
-            className="flex flex-col items-center text-center space-y-2 group"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.3 }}
+            transition={{ delay: index * 0.1 }}
           >
-            <FeatureIcon Icon={feature.Icon} />
-            <h3 className="font-semibold text-sm sm:text-base group-hover:text-white transition-colors">{feature.title}</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground group-hover:text-gray-300 transition-colors">{feature.description}</p>
+            <FeatureCard 
+              feature={feature} 
+              onClick={feature.title === "Create Note" ? handleNavigation('/new-note') : undefined}
+            />
           </motion.div>
         ))}
       </div>
-      <div className="flex justify-center">
-        <Button onClick={handleNavigation('/login')} size="lg" className="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105">
-          Get Started
-          <span className="ml-2 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="mt-6 sm:mt-8 text-center"
+      >
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-200 mb-2">Ready to boost your productivity?</h2>
+        <p className="text-sm sm:text-base text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
+        <Button
+          onClick={handleNavigation('/new-note')}
+          size="lg"
+          className="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <motion.span
+            className="flex items-center"
+            whileHover={{ x: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <Pencil className="mr-2 h-4 w-4 transition-transform group-hover:rotate-45" aria-hidden="true" />
+            Create New Note
+          </motion.span>
         </Button>
+      </motion.div>
+    </motion.div>
+  ), [handleNavigation]);
+
+  const renderNotLoggedInContent = useCallback(() => (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6 sm:space-y-8"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {notLoggedInFeatures.map((feature, index) => (
+          <motion.div
+            key={feature.title}
+            className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl backdrop-blur-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.3 }}
+            whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}
+          >
+            <FeatureIcon Icon={feature.Icon} />
+            <h3 className="mt-4 font-semibold text-lg text-white">{feature.title}</h3>
+            <p className="mt-2 text-sm text-gray-300">{feature.description}</p>
+          </motion.div>
+        ))}
       </div>
-    </div>
+      <motion.div
+        className="flex flex-col items-center justify-center space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <p className="text-lg text-center text-gray-200 max-w-2xl">
+          Experience the future of note-taking with AI-powered insights and seamless collaboration.
+        </p>
+        <Button
+          onClick={handleNavigation('/login')}
+          size="lg"
+          className="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
+        >
+          <motion.span
+            className="flex items-center"
+            whileHover={{ x: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            Get Started
+            <span className="ml-2 transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+          </motion.span>
+        </Button>
+      </motion.div>
+    </motion.div>
   ), [handleNavigation]);
 
   return (
@@ -154,7 +213,22 @@ const HomePage = () => {
             exit={{ opacity: 0 }}
             className={cn("min-h-screen flex items-center justify-center")}
           >
-            <div className="loader text-lg sm:text-xl" aria-live="polite">Loading...</div>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{
+                duration: 2,
+                ease: "easeInOut",
+                times: [0, 0.5, 1],
+                repeat: Infinity,
+              }}
+              className="loader text-lg sm:text-xl"
+              aria-live="polite"
+            >
+              Loading...
+            </motion.div>
           </motion.div>
         ) : (
           <motion.div
@@ -166,7 +240,7 @@ const HomePage = () => {
           >
             <Card className={cn("w-full max-w-4xl bg-black/10 backdrop-blur-lg shadow-xl")}>
               <CardHeader>
-                <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
+                <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-extralightt font-Orbitron text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
                   <Cover>
                     {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                   </Cover>
@@ -174,7 +248,7 @@ const HomePage = () => {
                 <FlipWords
                   words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
                   duration={3000}
-                  className="text-lg sm:text-xl md:text-2xl font-semibold text-center mt-4 text-gray-200 font-suse"
+                  className="text-lg sm:text-l md:text-2xl font-extralight text-center mt-4 text-gray-200 font-Orbitron"
                 />
               </CardHeader>
               <CardContent>
@@ -189,6 +263,4 @@ const HomePage = () => {
       </AnimatePresence>
     </AuroraBackground>
   );
-};
-
-export default HomePage;
+}

@@ -66,6 +66,7 @@ module.exports = {
       fontFamily: {
         'honk': ['"Honk"', 'sans-serif'],
         'suse': ['"SUSE"', 'sans-serif'], // Added SUSE font
+        'Orbitron': ['"Orbitron"', 'sans-serif'], // Added Orbitron font
       },
       keyframes: {
         "accordion-down": {
