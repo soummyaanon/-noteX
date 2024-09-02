@@ -1,18 +1,14 @@
-"use client";
+'use client'
 
-import { cn } from "../../lib/utils.js";
-import React from "react";
+import { cn } from "../../lib/utils"
+import React from "react"
 
-const AuroraBackground = ({
-  className,
-  children,
-  ...props
-}) => {
+export default function AuroraBackground({ className, children, ...props }) {
   return (
-    <main>
+    <main className="min-h-screen w-full">
       <div
         className={cn(
-          "relative flex flex-col h-[100vh] items-center justify-center bg-zinc-50 dark:bg-black text-slate-950 transition-bg",
+          "relative flex flex-col min-h-screen items-center justify-center bg-zinc-50 dark:bg-black text-slate-950 transition-bg",
           className
         )}
         {...props}
@@ -33,19 +29,17 @@ const AuroraBackground = ({
               after:[background-size:200%,_100%]
               after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
               pointer-events-none
-              absolute -inset-[20px] opacity-30 will-change-transform
+              absolute -inset-[10%] sm:-inset-[20px] opacity-30 will-change-transform
               mix-blend-mode:soft-light
               [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]
             `)}
           ></div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-50/50 to-zinc-50 dark:via-black/50 dark:to-black pointer-events-none"></div>
         </div>
-        <div className="relative z-10">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {children}
         </div>
       </div>
     </main>
-  );
-};
-
-export default AuroraBackground;
+  )
+}
