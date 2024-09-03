@@ -104,12 +104,13 @@ export default function Component({ user, setUser }) {
   )
 
   return (
-    <header className="sticky top-0 backdrop-blur-lg bg-background/80 shadow-lg z-50">
+    <header className="sticky top-0 z-50">
       {loading && (
         <Progress value={loadingProgress} className="h-1 w-full absolute top-0 left-0 z-50" />
       )}
-      <nav className="container mx-auto px-4 py-2">
-        <div className="flex items-center justify-between">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl"></div>
+      <nav className="relative container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between bg-background/30 backdrop-blur-md rounded-full p-2 shadow-lg">
           <Link to="/" className="flex items-center">
             <Logo />
           </Link>
@@ -123,11 +124,12 @@ export default function Component({ user, setUser }) {
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
+                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full overflow-hidden">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={profileImageUrl} alt={user.name} />
                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/40 to-secondary/40 mix-blend-overlay"></div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -142,7 +144,7 @@ export default function Component({ user, setUser }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <Button variant="ghost" size="icon" className="md:hidden rounded-full" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <Menu className="h-6 w-6" />
               <span className="sr-only">Toggle menu</span>
             </Button>
@@ -157,7 +159,7 @@ export default function Component({ user, setUser }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-background/80 backdrop-blur-lg shadow-lg py-2"
+            className="md:hidden bg-background/30 backdrop-blur-md rounded-full shadow-lg py-2 mt-2 mx-4"
           >
             <div className="container mx-auto px-2 flex justify-around">
               {navItems}
