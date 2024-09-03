@@ -1,6 +1,4 @@
-const {
-  default: flattenColorPalette,
-} = require("tailwindcss/lib/util/flattenColorPalette");
+const { default: flattenColorPalette } = require("tailwindcss/lib/util/flattenColorPalette");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -9,7 +7,7 @@ module.exports = {
     './pages/**/*.{js,jsx}',
     './components/**/*.{js,jsx}',
     './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx,ts,tsx}', // Added ts and tsx extensions
+    './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     container: {
@@ -65,8 +63,8 @@ module.exports = {
       },
       fontFamily: {
         'honk': ['"Honk"', 'sans-serif'],
-        'suse': ['"SUSE"', 'sans-serif'], // Added SUSE font
-        'Orbitron': ['"Orbitron"', 'sans-serif'], // Added Orbitron font
+        'suse': ['"SUSE"', 'sans-serif'],
+        'Orbitron': ['"Orbitron"', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -105,7 +103,6 @@ function addVariablesForColors({ addBase, theme }) {
   let newVars = Object.fromEntries(
     Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
   );
-
   addBase({
     ":root": newVars,
   });

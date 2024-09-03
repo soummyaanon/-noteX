@@ -42,10 +42,10 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true}>
       <Router>
         <ErrorBoundary>
-          <div className="flex flex-col min-h-screen bg-black text-white">
+          <div className="flex flex-col min-h-screen">
             <Header user={user} setUser={setUser} />
             <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
               <Suspense fallback={<Loading />}>

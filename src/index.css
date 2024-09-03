@@ -6,81 +6,72 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
- 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
     --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
- 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
- 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
- 
     --radius: 0.5rem;
   }
- 
+
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 0 0% 0%; /* AMOLED black */
     --foreground: 210 40% 98%;
- 
-    --card: 222.2 84% 4.9%;
+    --card: 0 0% 4%; /* Slightly lighter than background for contrast */
     --card-foreground: 210 40% 98%;
- 
-    --popover: 222.2 84% 4.9%;
+    --popover: 0 0% 4%;
     --popover-foreground: 210 40% 98%;
- 
     --primary: 210 40% 98%;
     --primary-foreground: 222.2 47.4% 11.2%;
- 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
- 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-
     /* Additional dark mode shades */
-    --gray-900: 210 10% 10%;
-    --gray-800: 210 10% 20%;
-    --gray-700: 210 10% 30%;
-    --gray-600: 210 10% 40%;
-    --gray-500: 210 10% 50%;
-    --gray-400: 210 10% 60%;
-    --gray-300: 210 10% 70%;
-    --gray-200: 210 10% 80%;
-    --gray-100: 210 10% 90%;
+    --gray-900: 0 0% 10%;
+    --gray-800: 0 0% 20%;
+    --gray-700: 0 0% 30%;
+    --gray-600: 0 0% 40%;
+    --gray-500: 0 0% 50%;
+    --gray-400: 0 0% 60%;
+    --gray-300: 0 0% 70%;
+    --gray-200: 0 0% 80%;
+    --gray-100: 0 0% 90%;
   }
+}
 
+@layer base {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+}
+
+@layer utilities {
+  .transition-theme {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
 }
