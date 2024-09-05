@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from "../ui/alert";
 import { 
   Loader2, Bold, Italic, List, ListOrdered, Link, Image, Code, Quote, 
   Heading1, Heading2, Heading3, Sparkles, Menu, Save, Eye, Edit, BookOpen,
-  ChevronDown, ChevronUp, X, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen
+  ChevronDown, ChevronUp, X, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen,
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo
 } from 'lucide-react';
 import { Button } from "../ui/button";
 import {
@@ -29,7 +30,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 
-export default function Component({ userId }) {
+export default function NoteEditor({ userId }) {
   const { noteId } = useParams();
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -45,6 +46,7 @@ export default function Component({ userId }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
   const [fontSize, setFontSize] = useState(16);
+  const [theme, setTheme] = useState('light');
   const editorRef = useRef(null);
   const fullscreenRef = useRef(null);
 
@@ -212,6 +214,9 @@ export default function Component({ userId }) {
     { icon: Image, action: () => insertMarkdown('![', 'alt text](https://example.com/image.jpg)'), tooltip: 'Image' },
     { icon: Code, action: () => insertMarkdown('`', 'code'), tooltip: 'Inline Code' },
     { icon: Quote, action: () => insertMarkdown('\n> ', 'quote'), tooltip: 'Blockquote' },
+    { icon: AlignLeft, action: () => {}, tooltip: 'Align Left' },
+    { icon: AlignCenter, action: () => {}, tooltip: 'Align Center' },
+    { icon: AlignRight, action: () => {}, tooltip: 'Align Right' },
   ];
 
   return (
@@ -221,7 +226,7 @@ export default function Component({ userId }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className="p-2 sm:p-4 md:p-6 lg:p-8"
+        className={`p-2 sm:p-4 md:p-6 lg:p-8 ${theme === 'dark' ? 'dark' : ''}`}
         ref={fullscreenRef}
       >
         <Card className="w-full max-w-7xl mx-auto shadow-lg overflow-hidden bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -270,6 +275,21 @@ export default function Component({ userId }) {
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+                      Toggle Theme
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setShowSidebar(!showSidebar)}>
+                      Toggle Sidebar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
