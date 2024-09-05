@@ -205,11 +205,11 @@ export default function Component() {
                 transition={{ duration: 0.2 }}
               >
                 <TabsContent value="preview" className="mt-4">
-                  <div className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-lg leading-relaxed' : ''}`} dangerouslySetInnerHTML={{ __html: marked(note.content) }} />
+                  <div className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-lg leading-relaxed' : ''}`} dangerouslySetInnerHTML={{ __html: marked(note.content || '') }} />
                 </TabsContent>
                 <TabsContent value="source" className="mt-4">
                   <pre className={`p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-sm' : ''}`}>
-                    <code>{note.content}</code>
+                    <code>{note.content || ''}</code>
                   </pre>
                 </TabsContent>
               </motion.div>
@@ -224,7 +224,7 @@ export default function Component() {
                 transition={{ duration: 0.3 }}
                 className="mt-6"
               >
-                <TextToSpeech text={note.content} />
+                <TextToSpeech text={note.content || ''} />
               </motion.div>
             )}
           </AnimatePresence>
