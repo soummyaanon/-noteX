@@ -47,6 +47,8 @@ export default function NoteEditor({ userId }) {
   const [showSidebar, setShowSidebar] = useState(true);
   const [fontSize, setFontSize] = useState(16);
   const [theme, setTheme] = useState('light');
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
   const editorRef = useRef(null);
   const fullscreenRef = useRef(null);
 
@@ -75,6 +77,7 @@ export default function NoteEditor({ userId }) {
       const note = await getDocument(NOTES_COLLECTION_ID, noteId);
       setTitle(note.title);
       setContent(note.content);
+      setUndoStack([{ title: note.title, content: note.content }]);
     } catch (error) {
       setError('Failed to fetch note. Please try again.');
     } finally {
@@ -134,7 +137,7 @@ export default function NoteEditor({ userId }) {
     const { selectionStart, selectionEnd } = textarea;
     const selectedText = content.substring(selectionStart, selectionEnd);
     const newContent = `${content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${content.substring(selectionEnd)}`;
-    setContent(newContent);
+    updateContent(newContent);
     textarea.focus();
     textarea.setSelectionRange(selectionStart + markdownSymbol.length, selectionEnd + markdownSymbol.length);
   };
@@ -143,7 +146,7 @@ export default function NoteEditor({ userId }) {
     const textarea = editorRef.current;
     const { selectionStart, selectionEnd } = textarea;
     const newContent = `${content.substring(0, selectionStart)}${suggestion}${content.substring(selectionEnd)}`;
-    setContent(newContent);
+    updateContent(newContent);
     textarea.focus();
     textarea.setSelectionRange(selectionStart + suggestion.length, selectionStart + suggestion.length);
   };
@@ -152,7 +155,7 @@ export default function NoteEditor({ userId }) {
     setLoading(true);
     try {
       const improvedContent = await getContentImprovements(content);
-      setContent(improvedContent);
+      updateContent(improvedContent);
     } catch (error) {
       setError('Failed to improve content. Please try again.');
     } finally {
@@ -164,7 +167,7 @@ export default function NoteEditor({ userId }) {
     setLoading(true);
     try {
       const suggestedTitle = await generateTitleSuggestion(content);
-      setTitle(suggestedTitle);
+      updateTitle(suggestedTitle);
     } catch (error) {
       setError('Failed to generate title. Please try again.');
     } finally {
@@ -202,6 +205,38 @@ export default function NoteEditor({ userId }) {
     }
   };
 
+  const updateContent = (newContent) => {
+    setUndoStack([...undoStack, { title, content }]);
+    setRedoStack([]);
+    setContent(newContent);
+  };
+
+  const updateTitle = (newTitle) => {
+    setUndoStack([...undoStack, { title, content }]);
+    setRedoStack([]);
+    setTitle(newTitle);
+  };
+
+  const handleUndo = () => {
+    if (undoStack.length > 0) {
+      const previousState = undoStack[undoStack.length - 1];
+      setRedoStack([...redoStack, { title, content }]);
+      setTitle(previousState.title);
+      setContent(previousState.content);
+      setUndoStack(undoStack.slice(0, -1));
+    }
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length > 0) {
+      const nextState = redoStack[redoStack.length - 1];
+      setUndoStack([...undoStack, { title, content }]);
+      setTitle(nextState.title);
+      setContent(nextState.content);
+      setRedoStack(redoStack.slice(0, -1));
+    }
+  };
+
   const markdownButtons = [
     { icon: Bold, action: () => insertMarkdown('**', 'bold text'), tooltip: 'Bold' },
     { icon: Italic, action: () => insertMarkdown('*', 'italic text'), tooltip: 'Italic' },
@@ -235,7 +270,7 @@ export default function NoteEditor({ userId }) {
               <Input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => updateTitle(e.target.value)}
                 placeholder="Untitled Note"
                 className="text-xl sm:text-2xl md:text-3xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0 w-full sm:w-auto"
               />
@@ -318,6 +353,30 @@ export default function NoteEditor({ userId }) {
                             </Tooltip>
                           ))}
                         </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={handleUndo} disabled={undoStack.length === 0} className="text-gray-700 dark:text-gray-300">
+                                <Undo className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Undo</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button variant="ghost" size="sm" onClick={handleRedo} disabled={redoStack.length === 0} className="text-gray-700 dark:text-gray-300">
+                                <Redo className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Redo</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                       <div className="flex flex-wrap items-center space-x-2 mt-2 sm:mt-0">
                         <Button onClick={handleGenerateTitle} disabled={loading || !content} size="sm" variant="outline" className="mb-2 sm:mb-0 w-full sm:w-auto">
@@ -361,7 +420,7 @@ export default function NoteEditor({ userId }) {
                     <Textarea
                       ref={editorRef}
                       value={content}
-                      onChange={(e) => setContent(e.target.value)}
+                      onChange={(e) => updateContent(e.target.value)}
                       placeholder="Start writing your note here..."
                       className="min-h-[300px] sm:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                       style={{ fontSize: `${fontSize}px` }}
@@ -409,7 +468,7 @@ export default function NoteEditor({ userId }) {
                         <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
                       </TabsList>
                       <TabsContent value="ai" className="mt-4">
-                        <AIWritingAssistant onInsert={insertAISuggestion} currentContent={content} onUpdateTitle={setTitle} />
+                        <AIWritingAssistant onInsert={insertAISuggestion} currentContent={content} onUpdateTitle={updateTitle} />
                       </TabsContent>
                       <TabsContent value="recommendations" className="mt-4">
                         <ScrollArea className="h-[200px] sm:h-[300px] rounded-md border p-4">
