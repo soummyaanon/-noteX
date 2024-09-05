@@ -219,7 +219,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                         <SelectContent>
                           <SelectItem value="english">English</SelectItem>
                           <SelectItem value="hindi">Hindi</SelectItem>
-                          <selectItem value="kannada">Kannada</selectItem>
+                          <SelectItem value="chinese">Chinese</SelectItem>
                           <SelectItem value="french">French</SelectItem>
                           <SelectItem value="spanish">Spanish</SelectItem>
                           <SelectItem value="german">German</SelectItem>

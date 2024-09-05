@@ -7,7 +7,7 @@ import { Button } from '../ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Skeleton } from '../ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { ChevronLeft, Pencil, Trash2, Clock, Eye, Code, Volume2, Share2, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronLeft, Pencil, Trash2, Clock, Eye, Code, Volume2, Share2, Maximize2, Minimize2, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Toggle } from "../ui/toggle";
@@ -26,6 +26,7 @@ export default function Component() {
   const [showTextToSpeech, setShowTextToSpeech] = useState(false);
   const [activeTab, setActiveTab] = useState('preview');
   const [zenMode, setZenMode] = useState(false);
+  const [textAlignment, setTextAlignment] = useState('left');
 
   const fetchNoteAndUser = useCallback(async () => {
     try {
@@ -59,6 +60,10 @@ export default function Component() {
 
   const toggleZenMode = () => {
     setZenMode(!zenMode);
+  };
+
+  const handleAlignmentChange = (alignment) => {
+    setTextAlignment(alignment);
   };
 
   if (loading) {
@@ -108,18 +113,44 @@ export default function Component() {
             transition={{ delay: 0.2 }}
           >
             <h1 className="text-3xl font-bold text-primary">{note.title}</h1>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Toggle pressed={zenMode} onPressedChange={toggleZenMode} aria-label="Toggle Zen Mode">
-                    {zenMode ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                  </Toggle>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {zenMode ? 'Exit Zen Mode' : 'Enter Zen Mode'}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex items-center space-x-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Toggle pressed={textAlignment === 'left'} onPressedChange={() => handleAlignmentChange('left')} aria-label="Align Left">
+                      <AlignLeft className="h-4 w-4" />
+                    </Toggle>
+                  </TooltipTrigger>
+                  <TooltipContent>Align Left</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Toggle pressed={textAlignment === 'center'} onPressedChange={() => handleAlignmentChange('center')} aria-label="Align Center">
+                      <AlignCenter className="h-4 w-4" />
+                    </Toggle>
+                  </TooltipTrigger>
+                  <TooltipContent>Align Center</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Toggle pressed={textAlignment === 'right'} onPressedChange={() => handleAlignmentChange('right')} aria-label="Align Right">
+                      <AlignRight className="h-4 w-4" />
+                    </Toggle>
+                  </TooltipTrigger>
+                  <TooltipContent>Align Right</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Toggle pressed={zenMode} onPressedChange={toggleZenMode} aria-label="Toggle Zen Mode">
+                      {zenMode ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                    </Toggle>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {zenMode ? 'Exit Zen Mode' : 'Enter Zen Mode'}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </motion.div>
           <motion.div 
             className={`flex items-center space-x-2 text-sm text-muted-foreground mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
@@ -205,7 +236,11 @@ export default function Component() {
                 transition={{ duration: 0.2 }}
               >
                 <TabsContent value="preview" className="mt-4">
-                  <div className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-lg leading-relaxed' : ''}`} dangerouslySetInnerHTML={{ __html: marked(note.content || '') }} />
+                  <div 
+                    className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-lg leading-relaxed' : ''}`} 
+                    style={{ textAlign: textAlignment }}
+                    dangerouslySetInnerHTML={{ __html: marked(note.content || '') }} 
+                  />
                 </TabsContent>
                 <TabsContent value="source" className="mt-4">
                   <pre className={`p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-sm' : ''}`}>
