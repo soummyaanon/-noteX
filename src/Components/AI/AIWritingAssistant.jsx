@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Loader2, Wand2, Sparkles, AlertCircle, Clipboard, Send, Eraser, ArrowRight, FileText, Tags, Maximize, BookOpen } from 'lucide-react';
-import { getAISuggestion, getContentImprovements, generateTitleSuggestion, summarizeNote, suggestTags, expandNote, getContentRecommendations } from '../../Services/aiService';
+import { Loader2, Wand2, Sparkles, AlertCircle, Clipboard, Send, Eraser, ArrowRight, FileText, Tags, Maximize, BookOpen, MessageSquare, Languages, GitBranch } from 'lucide-react';
+import { getAISuggestion, getContentImprovements, generateTitleSuggestion, summarizeNote, suggestTags, expandNote, getContentRecommendations, analyzeSentiment, translateText, generateMindMap } from '../../Services/aiService';
 import { useToast } from "../ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -11,6 +11,7 @@ import { ScrollArea } from "../ui/scroll-area";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { Badge } from "../ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const MODELS = {
   TEXT_GENERATION: 'gemini-pro',
@@ -32,6 +33,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [activeTab, setActiveTab] = useState('generate');
   const [copiedText, setCopiedText] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,7 +47,10 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
     summarize: { fn: summarizeNote, arg: currentContent, label: 'Summarize', icon: AlertCircle },
     tags: { fn: suggestTags, arg: currentContent, label: 'Suggest Tags', icon: Tags },
     expand: { fn: expandNote, arg: currentContent, label: 'Expand Content', icon: Maximize },
-    recommend: { fn: getContentRecommendations, arg: currentContent, label: 'Get Recommendations', icon: BookOpen }
+    recommend: { fn: getContentRecommendations, arg: currentContent, label: 'Get Recommendations', icon: BookOpen },
+    analyzeSentiment: { fn: analyzeSentiment, arg: currentContent, label: 'Analyze Sentiment', icon: MessageSquare },
+    translateText: { fn: translateText, arg: currentContent, label: 'Translate', icon: Languages, needsLanguage: true },
+    generateMindMap: { fn: generateMindMap, arg: currentContent, label: 'Generate Mind Map', icon: GitBranch },
   };
 
   const handleAction = useCallback(async (actionKey) => {
@@ -57,11 +62,22 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
 
     if (loading || (action.needsPrompt && !prompt) || (!action.needsPrompt && !currentContent?.trim())) return;
 
+    if (action.needsLanguage && !targetLanguage) {
+      toast({ title: "Error", description: "Please select a target language for translation.", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
     setAiSuggestion('');
 
     try {
-      const result = await action.fn(action.arg, MODELS.TEXT_GENERATION);
+      let result;
+      if (action.needsLanguage) {
+        result = await action.fn(action.arg, targetLanguage);
+      } else {
+        result = await action.fn(action.arg, MODELS.TEXT_GENERATION);
+      }
+
       if (result?.trim()) {
         setAiSuggestion(result);
         toast({ title: "Success", description: `AI ${action.label} generated successfully.` });
@@ -78,7 +94,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
     } finally {
       setLoading(false);
     }
-  }, [actions, loading, prompt, currentContent, toast]);
+  }, [actions, loading, prompt, currentContent, targetLanguage, toast]);
 
   const handleCopyContent = useCallback(() => {
     navigator.clipboard.writeText(aiSuggestion).then(() => {
@@ -170,32 +186,59 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                     </AlertDescription>
                   </Alert>
                 ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {Object.entries(actions).filter(([key]) => key !== 'suggest').map(([key, { label, icon: Icon }]) => (
-                      <TooltipProvider key={key}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              onClick={() => handleAction(key)}
-                              disabled={loading}
-                              variant="outline"
-                              size="icon"
-                              className="w-full h-12 bg-gray-700 text-gray-200 hover:bg-gray-600"
-                            >
-                              {loading ? (
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                              ) : (
-                                <Icon className="h-5 w-5" />
-                              )}
-                              <span className="sr-only">{label}</span>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{label}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ))}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                      {Object.entries(actions).filter(([key]) => key !== 'suggest' && key !== 'translateText').map(([key, { label, icon: Icon }]) => (
+                        <TooltipProvider key={key}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                onClick={() => handleAction(key)}
+                                disabled={loading}
+                                variant="outline"
+                                size="icon"
+                                className="w-full h-12 bg-gray-700 text-gray-200 hover:bg-gray-600"
+                              >
+                                {loading ? (
+                                  <Loader2 className="h-5 w-5 animate-spin" />
+                                ) : (
+                                  <Icon className="h-5 w-5" />
+                                )}
+                                <span className="sr-only">{label}</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{label}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    </div>
+                    <div className="flex space-x-2">
+                      <Select onValueChange={setTargetLanguage} value={targetLanguage}>
+                        <SelectTrigger className="w-[180px] bg-gray-700 text-gray-200">
+                          <SelectValue placeholder="Select language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="english">English</SelectItem>
+                          <SelectItem value ="hindi">Hindi</SelectItem>
+                          <SelectItem value="portuguese">Portuguese</SelectItem>
+                          <SelectItem value="french">French</SelectItem>
+                          <SelectItem value="spanish">Spanish</SelectItem>
+                          <SelectItem value="german">German</SelectItem>
+                          <SelectItem value="italian">Italian</SelectItem>
+                          <SelectItem value="japanese">Japanese</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        onClick={() => handleAction('translateText')}
+                        disabled={loading || !targetLanguage}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
+                        Translate
+                      </Button>
+                    </div>
                   </div>
                 )}
               </TabsContent>
