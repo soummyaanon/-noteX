@@ -1,24 +1,24 @@
-import React from 'react'
-import { Button } from "../ui/button"
-import { Separator } from "../ui/separator"
-import { Label } from "../ui/label"
+import React from 'react';
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { Label } from "../ui/label";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip"
-import { cn } from "../../lib/utils"
-import { Github, Twitter, Linkedin, Mail, ArrowRight } from 'lucide-react'
+} from "../ui/tooltip";
+import { cn } from "../../lib/utils";
+import { Github, Twitter, Linkedin, Mail, ArrowRight } from 'lucide-react';
 
 export default function AdvancedFooter() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const socialLinks = [
     { name: 'GitHub', icon: Github, url: 'https://github.com/soummyaanon' },
     { name: 'Twitter', icon: Twitter, url: 'https://twitter.com/Thesourya2000' },
     { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/soumyapanda12/' },
-  ]
+  ];
 
   const footerLinks = [
     { name: 'About', href: '/about' },
@@ -26,7 +26,7 @@ export default function AdvancedFooter() {
     { name: 'Terms of Service', href: '/terms-of-service' },
     { name: 'Contact', href: '/contact' },
     { name: 'FAQ', href: '/faq' },
-  ]
+  ];
 
   return (
     <footer className={cn("mt-auto py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-background/90 to-background/80 backdrop-blur-sm border-t")}>
@@ -71,18 +71,23 @@ export default function AdvancedFooter() {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary">Feedback</h3>
             <div className="space-y-2">
-              <iframe
-                src="https://p5vwt49z1jj.typeform.com/to/cY138u3C"
-                width="100%"
-                height="400px"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="Feedback Form"
-              ></iframe>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200">
+                      <a href="mailto:anonymousudgp9@gmail.com" aria-label="Send Feedback">
+                        <Mail className="w-5 h-5" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Send us your feedback</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <p className="text-xs text-muted-foreground">
-              We value your feedback. Please fill out the form to help us improve.
+              We value your feedback. Please send us an email to help us improve.
             </p>
           </div>
         </div>
@@ -100,5 +105,5 @@ export default function AdvancedFooter() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
