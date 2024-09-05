@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const MAX_CHARS = 2000;
+const MAX_CHARS = 4000;
 const MAX_TOKENS = 500;
 const API_KEY = import.meta.env.VITE_GOOGLE_AI_API_KEY;
 

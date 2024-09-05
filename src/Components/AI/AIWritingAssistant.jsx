@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import { Loader2, Wand2, Sparkles, AlertCircle, Clipboard, Send, Eraser, ArrowRight, FileText, Tags, Maximize, BookOpen, MessageSquare, Languages, GitBranch } from 'lucide-react';
 import { getAISuggestion, getContentImprovements, generateTitleSuggestion, summarizeNote, suggestTags, expandNote, getContentRecommendations, analyzeSentiment, translateText, generateMindMap } from '../../Services/aiService';
 import { useToast } from "../ui/use-toast";
@@ -35,10 +35,6 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
   const [copiedText, setCopiedText] = useState('');
   const [targetLanguage, setTargetLanguage] = useState('');
   const { toast } = useToast();
-
-  useEffect(() => {
-    console.log("Current content:", currentContent);
-  }, [currentContent]);
 
   const actions = {
     suggest: { fn: getAISuggestion, arg: prompt, label: 'Generate Outline', icon: Wand2, needsPrompt: true },
@@ -134,23 +130,24 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
           <AnimatePresence mode="wait">
             <motion.div key={activeTab} {...fadeInOut}>
               <TabsContent value="generate" className="space-y-4">
-                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                  <Input
+                <div className="flex flex-col space-y-2">
+                  <Textarea
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
                     placeholder="Enter a prompt for AI assistance"
-                    className="bg-gray-700 text-white flex-grow"
+                    className="bg-gray-700 text-white min-h-[100px] resize-y"
                   />
-                  <div className="flex space-x-2">
+                  <div className="flex justify-end space-x-2">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
                             onClick={() => handleAction('suggest')}
                             disabled={loading || !prompt}
-                            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                            className="w-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50"
                           >
-                            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                            Submit
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -164,7 +161,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                           <Button
                             onClick={() => setPrompt('')}
                             variant="outline"
-                            className="w-full sm:w-auto bg-gray-700 hover:bg-gray-600"
+                            className="w-auto bg-gray-700 hover:bg-gray-600"
                           >
                             <Eraser className="h-4 w-4" />
                           </Button>
@@ -187,7 +184,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                   </Alert>
                 ) : (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                       {Object.entries(actions).filter(([key]) => key !== 'suggest' && key !== 'translateText').map(([key, { label, icon: Icon }]) => (
                         <TooltipProvider key={key}>
                           <Tooltip>
@@ -214,15 +211,12 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                         </TooltipProvider>
                       ))}
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                       <Select onValueChange={setTargetLanguage} value={targetLanguage}>
-                        <SelectTrigger className="w-[180px] bg-gray-700 text-gray-200">
+                        <SelectTrigger className="w-full sm:w-[180px] bg-gray-700 text-gray-200">
                           <SelectValue placeholder="Select language" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="english">English</SelectItem>
-                          <SelectItem value ="hindi">Hindi</SelectItem>
-                          <SelectItem value="portuguese">Portuguese</SelectItem>
                           <SelectItem value="french">French</SelectItem>
                           <SelectItem value="spanish">Spanish</SelectItem>
                           <SelectItem value="german">German</SelectItem>
@@ -233,9 +227,9 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                       <Button
                         onClick={() => handleAction('translateText')}
                         disabled={loading || !targetLanguage}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="w-full sm:w-auto bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-semibold rounded-full shadow-lg transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
                       >
-                        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4 mr-2" />}
+                        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Languages className="h-4 w-4 mr-2" />}
                         Translate
                       </Button>
                     </div>
