@@ -9,6 +9,7 @@ import AuroraBackground from "../Components/ui/aurora-background";
 import { FlipWords } from "../Components/ui/flip-words";
 import { getCurrentUser } from '../Services/appwrite';
 import { Cover } from "../Components/ui/cover";
+import { PulseLoader } from 'react-spinners';
 
 const FeatureIcon = React.memo(({ Icon }) => (
   <motion.div
@@ -213,22 +214,7 @@ export default function HomePage() {
             exit={{ opacity: 0 }}
             className={cn("min-h-screen flex items-center justify-center")}
           >
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 2,
-                ease: "easeInOut",
-                times: [0, 0.5, 1],
-                repeat: Infinity,
-              }}
-              className="loader text-lg text-gray-800 dark:text-gray-200"
-              aria-live="polite"
-            >
-              Loading...
-            </motion.div>
+            <PulseLoader color="#4F46E5" size={15} margin={2} />
           </motion.div>
         ) : (
           <motion.div
