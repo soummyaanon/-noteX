@@ -9,14 +9,15 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { cn } from "../../lib/utils";
-import { Github, Twitter, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { RiTwitterXFill } from "react-icons/ri";
 
 export default function AdvancedFooter() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
     { name: 'GitHub', icon: Github, url: 'https://github.com/soummyaanon' },
-    { name: 'Twitter', icon: Twitter, url: 'https://twitter.com/Thesourya2000' },
+    { name: 'Twitter', icon: RiTwitterXFill, url: 'https://twitter.com/Thesourya2000' },
     { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/soumyapanda12/' },
   ];
 
@@ -71,11 +72,14 @@ export default function AdvancedFooter() {
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-primary">Feedback</h3>
             <div className="space-y-2">
+              <Label htmlFor="feedback-email" className="text-sm font-medium text-muted-foreground">
+                Send us your feedback
+              </Label>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200">
-                      <a href="mailto:anonymousudgp9@gmail.com" aria-label="Send Feedback">
+                      <a id="feedback-email" href="mailto:anonymousudgp9@gmail.com" aria-label="Send Feedback">
                         <Mail className="w-5 h-5" />
                       </a>
                     </Button>
