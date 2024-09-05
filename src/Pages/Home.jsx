@@ -73,8 +73,8 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
         <feature.Icon className="w-4 h-4 text-primary group-hover:text-white transition-colors" aria-hidden="true" />
       </motion.div>
       <div>
-        <h3 className="font-semibold text-sm text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
-        <p className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
+        <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-black dark:group-hover:text-white transition-colors">{feature.title}</h3>
+        <p className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
   </motion.div>
@@ -132,8 +132,8 @@ export default function HomePage() {
         transition={{ delay: 0.6 }}
         className="mt-6 text-center"
       >
-        <h2 className="text-xl font-semibold text-gray-200 mb-2">Ready to boost your productivity?</h2>
-        <p className="text-sm text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Ready to boost your productivity?</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
           size="lg"
@@ -170,8 +170,8 @@ export default function HomePage() {
             whileHover={{ scale: 1.05 }}
           >
             <FeatureIcon Icon={feature.Icon} />
-            <h3 className="mt-3 font-semibold text-lg text-white">{feature.title}</h3>
-            <p className="mt-2 text-sm text-gray-300">{feature.description}</p>
+            <h3 className="mt-3 font-semibold text-lg text-gray-800 dark:text-white">{feature.title}</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{feature.description}</p>
           </motion.div>
         ))}
       </div>
@@ -181,7 +181,7 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-lg text-center text-gray-200 max-w-2xl">
+        <p className="text-lg text-center text-gray-800 dark:text-gray-200 max-w-2xl">
           Experience the future of note-taking with AI-powered insights and seamless collaboration.
         </p>
         <Button
@@ -224,7 +224,7 @@ export default function HomePage() {
                 times: [0, 0.5, 1],
                 repeat: Infinity,
               }}
-              className="loader text-lg"
+              className="loader text-lg text-gray-800 dark:text-gray-200"
               aria-live="polite"
             >
               Loading...
@@ -238,7 +238,7 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
             className={cn("min-h-screen flex items-center justify-center p-4")}
           >
-            <Card className={cn("w-full max-w-4xl bg-black/10 backdrop-blur-lg shadow-xl")}>
+            <Card className={cn("w-full max-w-4xl bg-white/90 dark:bg-black/10 backdrop-blur-lg shadow-xl")}>
               <CardHeader>
                 <CardTitle className="text-2xl md:text-3xl font-extralight font-Orbitron text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
                   <Cover>
@@ -248,14 +248,14 @@ export default function HomePage() {
                 <FlipWords
                   words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
                   duration={3000}
-                  className="text-lg md:text-xl font-extralight text-center mt-4 text-gray-200 font-Orbitron"
+                  className="text-lg md:text-xl font-extralight text-center mt-4 text-gray-800 dark:text-gray-200 font-Orbitron"
                 />
               </CardHeader>
               <CardContent>
                 {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
               </CardContent>
               <CardFooter className="justify-center mt-4">
-                <p className="text-xs text-gray-400">Discover the power of collaborative note-taking with noteX</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Discover the power of collaborative note-taking with noteX</p>
               </CardFooter>
             </Card>
           </motion.div>
