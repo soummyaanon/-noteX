@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../Components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../Components/ui/card";
-import { Pencil, Users, Lock, Zap, FileText, Search, Star } from 'lucide-react';
+import { Pencil, Bot, Lock, Zap, FileText, Search, Star } from 'lucide-react';
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from 'framer-motion';
 import AuroraBackground from "../Components/ui/aurora-background";
@@ -10,6 +10,7 @@ import { FlipWords } from "../Components/ui/flip-words";
 import { getCurrentUser } from '../Services/appwrite';
 import { Cover } from "../Components/ui/cover";
 import { PulseLoader } from 'react-spinners';
+import { BorderBeam } from "../Components/magicui/border-beam";
 
 const FeatureIcon = React.memo(({ Icon }) => (
   <motion.div
@@ -22,23 +23,23 @@ const FeatureIcon = React.memo(({ Icon }) => (
 ));
 
 const features = [
+  { title: "noteX Bot", description: "Get AI-powered assistance", Icon: Bot },
   { title: "Create Note", description: "Start a new note or document", Icon: Pencil },
   { title: "Recent Notes", description: "Access your latest work", Icon: FileText },
   { title: "Search", description: "Find notes quickly", Icon: Search },
-  { title: "Collaborate", description: "Invite others to your notes", Icon: Users },
   { title: "Favorites", description: "Access your starred notes", Icon: Star },
   { title: "Google Gemini Pro", description: "Get AI-powered insights", Icon: Zap },
 ];
 
 const notLoggedInFeatures = [
-  { title: "Collaborative Note-Taking", description: "Work together in real-time", Icon: Users },
+  { title: "notex Bot", description: "Get AI-powered assistance", Icon: Bot },
   { title: "Smart Organization", description: "Keep your thoughts in order", Icon: Zap },
   { title: "Secure and Private", description: "Your data, your control", Icon: Lock }
 ];
 
 const loggedInWords = [
   "Boost productivity",
-  "Collaborate seamlessly",
+  "Get AI-powered assistance",
   "Organize thoughts",
   "Gemini Pro insights",
   "Secure your ideas",
@@ -60,22 +61,21 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    whileHover={{ scale: 1.05 }}
+    whileHover={{ scale: 1.03 }}
     transition={{ duration: 0.3 }}
-    className="bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-3 hover:from-white/10 hover:to-white/20 transition-all duration-300 cursor-pointer group"
+    className="relative bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-lg p-4 hover:from-blue-800/40 hover:to-purple-800/40 transition-all duration-300 cursor-pointer group backdrop-blur-md h-full"
     onClick={onClick}
   >
-    <div className="flex items-center space-x-3">
-      <motion.div
-        whileHover={{ rotate: 360 }}
-        transition={{ duration: 0.5 }}
-        className="rounded-full bg-primary/20 p-2 w-8 h-8 flex items-center justify-center group-hover:bg-primary/30 transition-colors"
-      >
-        <feature.Icon className="w-4 h-4 text-primary group-hover:text-white transition-colors" aria-hidden="true" />
-      </motion.div>
+<BorderBeam
+  duration={3}
+  rgb="0,255,255" // Cyan color
+  className="absolute inset-0 z-0 rounded-lg opacity-50"
+/>
+    <div className="relative z-10 flex items-center space-x-3">
+      <FeatureIcon Icon={feature.Icon} />
       <div>
-        <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-200 group-hover:text-black dark:group-hover:text-white transition-colors">{feature.title}</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{feature.description}</p>
+        <h3 className="font-semibold text-sm text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
+        <p className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
   </motion.div>
@@ -110,9 +110,9 @@ export default function HomePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4"
+      className="space-y-6"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {features.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -131,10 +131,10 @@ export default function HomePage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mt-6 text-center"
+        className="mt-8 text-center"
       >
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Ready to boost your productivity?</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Start by creating a new note or accessing your recent work.</p>
+        <h2 className="text-2xl font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
+        <p className="text-lg text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
           size="lg"
@@ -145,7 +145,7 @@ export default function HomePage() {
             whileHover={{ x: 5 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <Pencil className="mr-2 h-4 w-4 transition-transform group-hover:rotate-45" aria-hidden="true" />
+            <Pencil className="mr-2 h-5 w-5 transition-transform group-hover:rotate-45" aria-hidden="true" />
             Create New Note
           </motion.span>
         </Button>
@@ -158,32 +158,28 @@ export default function HomePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="space-y-6"
+      className="space-y-8"
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {notLoggedInFeatures.map((feature, index) => (
           <motion.div
             key={feature.title}
-            className="flex flex-col items-center text-center p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl backdrop-blur-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.3 }}
-            whileHover={{ scale: 1.05 }}
           >
-            <FeatureIcon Icon={feature.Icon} />
-            <h3 className="mt-3 font-semibold text-lg text-gray-800 dark:text-white">{feature.title}</h3>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{feature.description}</p>
+            <FeatureCard feature={feature} />
           </motion.div>
         ))}
       </div>
       <motion.div
-        className="flex flex-col items-center justify-center space-y-4"
+        className="flex flex-col items-center justify-center space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-lg text-center text-gray-800 dark:text-gray-200 max-w-2xl">
-          Experience the future of note-taking with AI-powered insights and seamless collaboration.
+        <p className="text-xl text-center text-gray-200 max-w-2xl">
+          Experience the future of note-taking with AI-powered insights and the noteX Assistance Bot.
         </p>
         <Button
           onClick={handleNavigation('/login')}
@@ -191,7 +187,7 @@ export default function HomePage() {
           className="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105"
         >
           <motion.span
-            className="flex items-center"
+            className="flex items-center text-lg"
             whileHover={{ x: 5 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
@@ -224,26 +220,28 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
             className={cn("min-h-screen flex items-center justify-center p-4")}
           >
-            <Card className={cn("w-full max-w-4xl bg-white/90 dark:bg-black/10 backdrop-blur-lg shadow-xl")}>
-              <CardHeader>
-                <CardTitle className="text-2xl md:text-3xl font-extralight font-Orbitron text-center bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
-                  <Cover>
-                    {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
-                  </Cover>
-                </CardTitle>
-                <FlipWords
-                  words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
-                  duration={3000}
-                  className="text-lg md:text-xl font-extralight text-center mt-4 text-gray-800 dark:text-gray-200 font-Orbitron"
-                />
-              </CardHeader>
-              <CardContent>
-                {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
-              </CardContent>
-              <CardFooter className="justify-center mt-4">
-                <p className="text-xs text-gray-600 dark:text-gray-400">Discover the power of collaborative note-taking with noteX</p>
-              </CardFooter>
-            </Card>
+            <div className="relative w-full max-w-5xl p-2">
+              <Card className={cn("w-full bg-blue-900/20 backdrop-blur-lg shadow-xl relative z-10 overflow-hidden")}>
+                <CardHeader className="pb-6">
+                  <CardTitle className="text-3xl md:text-4xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                    <Cover>
+                      {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
+                    </Cover>
+                  </CardTitle>
+                  <FlipWords
+                    words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
+                    duration={3000}
+                    className="text-lg md:text-xl font-light text-center mt-4 text-gray-200 font-Orbitron"
+                  />
+                </CardHeader>
+                <CardContent>
+                  {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
+                </CardContent>
+                <CardFooter className="justify-center mt-6">
+                  <p className="text-sm text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
+                </CardFooter>
+              </Card>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

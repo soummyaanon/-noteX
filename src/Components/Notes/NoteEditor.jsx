@@ -1,94 +1,87 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getDocument, createDocument, updateDocument } from '../../Services/appwrite';
-import { getAISuggestion, getContentImprovements, generateTitleSuggestion, getContentRecommendations } from '../../Services/aiService';
-import { marked } from 'marked';
-import { Card, CardContent } from "../ui/card";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Alert, AlertDescription } from "../ui/alert";
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { getDocument, createDocument, updateDocument } from '../../Services/appwrite'
+import { getAISuggestion, getContentImprovements, generateTitleSuggestion } from '../../Services/aiService'
+import { marked } from 'marked'
+import { Card, CardContent } from "../ui/card"
+import { Input } from "../ui/input"
+import { Textarea } from "../ui/textarea"
+import { Alert, AlertDescription } from "../ui/alert"
 import { 
   Loader2, Bold, Italic, List, ListOrdered, Link, Image, Code, Quote, 
-  Heading1, Heading2, Heading3, Sparkles, Menu, Save, Eye, Edit, BookOpen,
-  ChevronDown, ChevronUp, X, Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen,
-  AlignLeft, AlignCenter, AlignRight, Undo, Redo
-} from 'lucide-react';
-import { Button } from "../ui/button";
+  Heading1, Heading2, Heading3, Sparkles, Menu, Save, Eye, Edit,
+  ChevronDown, ChevronUp, X, Maximize2, Minimize2,
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Bot
+} from 'lucide-react'
+import { Button } from "../ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { ScrollArea } from "../ui/scroll-area";
-import { Slider } from "../ui/slider";
-import debounce from 'lodash.debounce';
-import AIWritingAssistant from '../AI/AIWritingAssistant';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+} from "../ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { Slider } from "../ui/slider"
+import debounce from 'lodash.debounce'
+import NoteXAssistant from '../AI/AIWritingAssistant'
+import { motion, AnimatePresence } from 'framer-motion'
 
-const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
+
+
+const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID
 
 export default function NoteEditor({ userId }) {
-  const { noteId } = useParams();
-  const navigate = useNavigate();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [preview, setPreview] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [isPreview, setIsPreview] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('');
-  const [recommendations, setRecommendations] = useState([]);
-  const [showRecommendations, setShowRecommendations] = useState(false);
-  const [showToolbar, setShowToolbar] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [fontSize, setFontSize] = useState(16);
-  const [theme, setTheme] = useState('light');
-  const [undoStack, setUndoStack] = useState([]);
-  const [redoStack, setRedoStack] = useState([]);
-  const editorRef = useRef(null);
-  const fullscreenRef = useRef(null);
-
-  const progress = useMotionValue(0);
-  const opacity = useTransform(progress, [0, 100], [0, 1]);
+  const { noteId } = useParams()
+  const navigate = useNavigate()
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [preview, setPreview] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [isPreview, setIsPreview] = useState(false)
+  const [saveStatus, setSaveStatus] = useState('')
+  const [showToolbar, setShowToolbar] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [fontSize, setFontSize] = useState(16)
+  const [theme, setTheme] = useState('light')
+  const [undoStack, setUndoStack] = useState([])
+  const [redoStack, setRedoStack] = useState([])
+  const editorRef = useRef(null)
+  const fullscreenRef = useRef(null)
 
   useEffect(() => {
     if (noteId) {
-      fetchNote();
+      fetchNote()
     }
-  }, [noteId]);
+  }, [noteId])
 
   useEffect(() => {
     marked.setOptions({
       gfm: true,
       breaks: true,
       headerIds: false,
-    });
-    setPreview(marked(content));
-    updateProgress();
-  }, [content]);
+    })
+    setPreview(marked(content))
+  }, [content])
 
   const fetchNote = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const note = await getDocument(NOTES_COLLECTION_ID, noteId);
-      setTitle(note.title);
-      setContent(note.content);
-      setUndoStack([{ title: note.title, content: note.content }]);
+      const note = await getDocument(NOTES_COLLECTION_ID, noteId)
+      setTitle(note.title)
+      setContent(note.content)
+      setUndoStack([{ title: note.title, content: note.content }])
     } catch (error) {
-      setError('Failed to fetch note. Please try again.');
+      setError('Failed to fetch note. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const handleSave = async () => {
-    setLoading(true);
-    setSaveStatus('Saving...');
-    setError(null);
+  const handleSave = useCallback(async () => {
+    setLoading(true)
+    setSaveStatus('Saving...')
+    setError(null)
     try {
       const noteData = {
         title,
@@ -96,146 +89,123 @@ export default function NoteEditor({ userId }) {
         owner: userId,
         updated_at: new Date().toISOString(),
         isFavorite: false,
-      };
+      }
 
       if (noteId) {
-        await updateDocument(NOTES_COLLECTION_ID, noteId, noteData);
+        await updateDocument(NOTES_COLLECTION_ID, noteId, noteData)
       } else {
-        noteData.created_at = new Date().toISOString();
-        const result = await createDocument(NOTES_COLLECTION_ID, noteData);
-        navigate(`/notes/${result.$id}`);
+        noteData.created_at = new Date().toISOString()
+        await createDocument(NOTES_COLLECTION_ID, noteData)
       }
-      setSaveStatus('Saved');
-      setTimeout(() => setSaveStatus(''), 2000);
+      setSaveStatus('Saved')
+      setTimeout(() => setSaveStatus(''), 2000)
     } catch (error) {
-      setError(`Failed to save note: ${error.message}`);
-      setSaveStatus('');
+      setError(`Failed to save note: ${error.message}`)
+      setSaveStatus('')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }, [title, content, userId, noteId])
 
   const debouncedSave = useCallback(
-    debounce(() => {
-      handleSave();
-    }, 5000),
-    [title, content]
-  );
+    debounce(handleSave, 2000),
+    [handleSave]
+  )
 
   useEffect(() => {
     if (title || content) {
-      setSaveStatus('Saving...');
-      debouncedSave();
+      setSaveStatus('Saving...')
+      debouncedSave()
     }
     return () => {
-      debouncedSave.cancel();
-    };
-  }, [title, content, debouncedSave]);
+      debouncedSave.cancel()
+    }
+  }, [title, content, debouncedSave])
 
   const insertMarkdown = (markdownSymbol, placeholder = '') => {
-    const textarea = editorRef.current;
-    const { selectionStart, selectionEnd } = textarea;
-    const selectedText = content.substring(selectionStart, selectionEnd);
-    const newContent = `${content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${content.substring(selectionEnd)}`;
-    updateContent(newContent);
-    textarea.focus();
-    textarea.setSelectionRange(selectionStart + markdownSymbol.length, selectionEnd + markdownSymbol.length);
-  };
-
-  const insertAISuggestion = (suggestion) => {
-    const textarea = editorRef.current;
-    const { selectionStart, selectionEnd } = textarea;
-    const newContent = `${content.substring(0, selectionStart)}${suggestion}${content.substring(selectionEnd)}`;
-    updateContent(newContent);
-    textarea.focus();
-    textarea.setSelectionRange(selectionStart + suggestion.length, selectionStart + suggestion.length);
-  };
+    const textarea = editorRef.current
+    const { selectionStart, selectionEnd } = textarea
+    const selectedText = content.substring(selectionStart, selectionEnd)
+    const newContent = `${content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${content.substring(selectionEnd)}`
+    updateContent(newContent)
+    textarea.focus()
+    textarea.setSelectionRange(selectionStart + markdownSymbol.length, selectionEnd + markdownSymbol.length)
+  }
 
   const handleImproveContent = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const improvedContent = await getContentImprovements(content);
-      updateContent(improvedContent);
+      const improvedContent = await getContentImprovements(content)
+      updateContent(improvedContent)
     } catch (error) {
-      setError('Failed to improve content. Please try again.');
+      setError('Failed to improve content. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleGenerateTitle = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const suggestedTitle = await generateTitleSuggestion(content);
-      updateTitle(suggestedTitle);
+      const suggestedTitle = await generateTitleSuggestion(content)
+      updateTitle(suggestedTitle)
     } catch (error) {
-      setError('Failed to generate title. Please try again.');
+      setError('Failed to generate title. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleGetRecommendations = async () => {
-    setLoading(true);
-    try {
-      const contentRecommendations = await getContentRecommendations(content);
-      setRecommendations(contentRecommendations.split('\n').filter(item => item.trim() !== ''));
-      setShowRecommendations(true);
-    } catch (error) {
-      setError('Failed to get recommendations. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateProgress = () => {
-    const wordCount = content.trim().split(/\s+/).length;
-    const targetWordCount = 500; // Adjust this value as needed
-    const percentage = Math.min((wordCount / targetWordCount) * 100, 100);
-    progress.set(percentage);
-  };
+  }
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      fullscreenRef.current.requestFullscreen();
-      setIsFullscreen(true);
+      fullscreenRef.current.requestFullscreen()
+      setIsFullscreen(true)
     } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
+      document.exitFullscreen()
+      setIsFullscreen(false)
     }
-  };
+  }
 
   const updateContent = (newContent) => {
-    setUndoStack([...undoStack, { title, content }]);
-    setRedoStack([]);
-    setContent(newContent);
-  };
+    setUndoStack([...undoStack, { title, content }])
+    setRedoStack([])
+    setContent(newContent)
+  }
 
   const updateTitle = (newTitle) => {
-    setUndoStack([...undoStack, { title, content }]);
-    setRedoStack([]);
-    setTitle(newTitle);
-  };
+    setUndoStack([...undoStack, { title, content }])
+    setRedoStack([])
+    setTitle(newTitle)
+  }
 
   const handleUndo = () => {
     if (undoStack.length > 0) {
-      const previousState = undoStack[undoStack.length - 1];
-      setRedoStack([...redoStack, { title, content }]);
-      setTitle(previousState.title);
-      setContent(previousState.content);
-      setUndoStack(undoStack.slice(0, -1));
+      const previousState = undoStack[undoStack.length - 1]
+      setRedoStack([...redoStack, { title, content }])
+      setTitle(previousState.title)
+      setContent(previousState.content)
+      setUndoStack(undoStack.slice(0, -1))
     }
-  };
+  }
 
   const handleRedo = () => {
     if (redoStack.length > 0) {
-      const nextState = redoStack[redoStack.length - 1];
-      setUndoStack([...undoStack, { title, content }]);
-      setTitle(nextState.title);
-      setContent(nextState.content);
-      setRedoStack(redoStack.slice(0, -1));
+      const nextState = redoStack[redoStack.length - 1]
+      setUndoStack([...undoStack, { title, content }])
+      setTitle(nextState.title)
+      setContent(nextState.content)
+      setRedoStack(redoStack.slice(0, -1))
     }
-  };
+  }
+
+  const handleAlignment = (alignment) => {
+    const textarea = editorRef.current
+    const { selectionStart, selectionEnd } = textarea
+    const selectedText = content.substring(selectionStart, selectionEnd)
+    const alignedText = `<div style="text-align: ${alignment}">${selectedText}</div>`
+    const newContent = `${content.substring(0, selectionStart)}${alignedText}${content.substring(selectionEnd)}`
+    updateContent(newContent)
+  }
 
   const markdownButtons = [
     { icon: Bold, action: () => insertMarkdown('**', 'bold text'), tooltip: 'Bold' },
@@ -249,10 +219,10 @@ export default function NoteEditor({ userId }) {
     { icon: Image, action: () => insertMarkdown('![', 'alt text](https://example.com/image.jpg)'), tooltip: 'Image' },
     { icon: Code, action: () => insertMarkdown('`', 'code'), tooltip: 'Inline Code' },
     { icon: Quote, action: () => insertMarkdown('\n> ', 'quote'), tooltip: 'Blockquote' },
-    { icon: AlignLeft, action: () => {}, tooltip: 'Align Left' },
-    { icon: AlignCenter, action: () => {}, tooltip: 'Align Center' },
-    { icon: AlignRight, action: () => {}, tooltip: 'Align Right' },
-  ];
+    { icon: AlignLeft, action: () => handleAlignment('left'), tooltip: 'Align Left' },
+    { icon: AlignCenter, action: () => handleAlignment('center'), tooltip: 'Align Center' },
+    { icon: AlignRight, action: () => handleAlignment('right'), tooltip: 'Align Right' },
+  ]
 
   return (
     <AnimatePresence>
@@ -261,26 +231,26 @@ export default function NoteEditor({ userId }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className={`p-2 sm:p-4 md:p-6 lg:p-8 ${theme === 'dark' ? 'dark' : ''}`}
+        className={`p-4 ${theme === 'dark' ? 'dark' : ''}`}
         ref={fullscreenRef}
       >
-        <Card className="w-full max-w-7xl mx-auto shadow-lg overflow-hidden bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-          <CardContent className="p-4 sm:p-6">
+        <Card className="w-full max-w-5xl mx-auto shadow-lg overflow-hidden bg-white dark:bg-gray-800">
+          <CardContent className="p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
               <Input
                 type="text"
                 value={title}
                 onChange={(e) => updateTitle(e.target.value)}
                 placeholder="Untitled Note"
-                className="text-xl sm:text-2xl md:text-3xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0 w-full sm:w-auto"
+                className="text-2xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0"
               />
-              <div className="flex items-center space-x-2 flex-shrink-0 w-full sm:w-auto justify-end">
+              <div className="flex items-center space-x-2 flex-shrink-0">
                 {saveStatus && (
                   <motion.span
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-sm text-muted-foreground hidden sm:inline"
+                    className="text-sm text-gray-500 dark:text-gray-400"
                   >
                     {saveStatus}
                   </motion.span>
@@ -288,20 +258,19 @@ export default function NoteEditor({ userId }) {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)} className="w-full sm:w-auto">
-                        {isPreview ? <Edit className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                        {isPreview ? 'Edit' : 'Preview'}
+                      <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)}>
+                        {isPreview ? <Edit className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{isPreview ? 'Switch to Edit mode' : 'Switch to Preview mode'}</p>
+                      <p>{isPreview ? 'Edit' : 'Preview'}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={toggleFullscreen} className="hidden sm:flex">
+                      <Button variant="outline" size="sm" onClick={toggleFullscreen}>
                         {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                       </Button>
                     </TooltipTrigger>
@@ -320,193 +289,97 @@ export default function NoteEditor({ userId }) {
                     <DropdownMenuItem onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
                       Toggle Theme
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowSidebar(!showSidebar)}>
-                      Toggle Sidebar
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
-              <div className={`flex-grow transition-all duration-300 ${showSidebar ? 'lg:w-3/4' : 'w-full'}`}>
-                <motion.div
-                  initial={false}
-                  animate={{ height: showToolbar ? 'auto' : 0, opacity: showToolbar ? 1 : 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  {!isPreview && (
-                    <div className="flex flex-wrap items-center justify-between mb-4 bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
-                      <div className="flex flex-wrap items-center space-x-1 mb-2 sm:mb-0">
-                        <TooltipProvider>
-                          {markdownButtons.map(({ icon: Icon, action, tooltip }, index) => (
-                            <Tooltip key={index}>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={action} className="text-gray-700 dark:text-gray-300">
-                                  <Icon className="h-4 w-4" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{tooltip}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          ))}
-                        </TooltipProvider>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={handleUndo} disabled={undoStack.length === 0} className="text-gray-700 dark:text-gray-300">
-                                <Undo className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Undo</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm" onClick={handleRedo} disabled={redoStack.length === 0} className="text-gray-700 dark:text-gray-300">
-                                <Redo className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Redo</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <div className="flex flex-wrap items-center space-x-2 mt-2 sm:mt-0">
-                        <Button onClick={handleGenerateTitle} disabled={loading || !content} size="sm" variant="outline" className="mb-2 sm:mb-0 w-full sm:w-auto">
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Generate Title
-                        </Button>
-                        <Button onClick={handleImproveContent} disabled={loading || !content} size="sm" variant="outline" className="mb-2 sm:mb-0 w-full sm:w-auto">
-                          <Sparkles className="h-4 w-4 mr-2" />
-                          Improve
-                        </Button>
-                        <Button onClick={handleGetRecommendations} disabled={loading || !content} size="sm" variant="outline" className="w-full sm:w-auto">
-                          <BookOpen className="h-4 w-4 mr-2" />
-                          Get Recommendations
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-
-                <div className="relative">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2 z-10"
-                    onClick={() => setShowToolbar(!showToolbar)}
-                  >
-                    {showToolbar ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                  {isPreview ? (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[300px] sm:min-h-[400px] overflow-auto mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner"
-                      style={{ fontSize: `${fontSize}px` }}
-                    >
-                      <div dangerouslySetInnerHTML={{ __html: preview }} />
-                    </motion.div>
-                  ) : (
-                    <Textarea
-                      ref={editorRef}
-                      value={content}
-                      onChange={(e) => updateContent(e.target.value)}
-                      placeholder="Start writing your note here..."
-                      className="min-h-[300px] sm:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                      style={{ fontSize: `${fontSize}px` }}
-                    />
-                  )}
-                </div>
-
-                <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
-                  <div className="flex items-center space-x-2 w-full sm:w-auto">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Font Size:</span>
-                    <Slider
-                      min={12}
-                      max={24}
-                      step={1}
-                      value={[fontSize]}
-                      onValueChange={(value) => setFontSize(value[0])}
-                      className="w-32"
-                    />
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{fontSize}px</span>
+            <motion.div
+              initial={false}
+              animate={{ height: showToolbar ? 'auto' : 0, opacity: showToolbar ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="overflow-hidden"
+            >
+              {!isPreview && (
+                <div className="flex flex-wrap items-center justify-between mb-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
+                  <div className="flex flex-wrap items-center space-x-1 mb-2 sm:mb-0">
+                    <TooltipProvider>
+                      {markdownButtons.map(({ icon: Icon, action, tooltip }, index) => (
+                        <Tooltip key={index}>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" onClick={action}>
+                              <Icon className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </TooltipProvider>
                   </div>
-                  <motion.div
-                    className="w-full sm:w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
-                    style={{ opacity }}
-                  >
-                    <motion.div
-                      className="h-full bg-blue-500"
-                      style={{ width: progress }}
-                    />
-                  </motion.div>
+                  <div className="flex items-center space-x-2">
+                    <Button onClick={handleUndo} disabled={undoStack.length === 0} size="sm" variant="ghost">
+                      <Undo className="h-4 w-4" />
+                    </Button>
+                    <Button onClick={handleRedo} disabled={redoStack.length === 0} size="sm" variant="ghost">
+                      <Redo className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
+            </motion.div>
 
-              <AnimatePresence>
-                {showSidebar && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full lg:w-1/4 bg-gray-100 dark:bg-gray-800 p-4 rounded-lg"
-                  >
-                    <Tabs defaultValue="ai" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="ai">AI Assistant</TabsTrigger>
-                        <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="ai" className="mt-4">
-                        <AIWritingAssistant onInsert={insertAISuggestion} currentContent={content} onUpdateTitle={updateTitle} />
-                      </TabsContent>
-                      <TabsContent value="recommendations" className="mt-4">
-                        <ScrollArea className="h-[200px] sm:h-[300px] rounded-md border p-4">
-                          {recommendations.map((recommendation, index) => (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.2, delay: index * 0.1 }}
-                              className="mb-2 p-2 bg-white dark:bg-gray-700 rounded-md"
-                            >
-                              <p className="text-sm mb-1">{recommendation}</p>
-                              <Button
-                                onClick={() => insertAISuggestion(recommendation)}
-                                size="sm"
-                                variant="ghost"
-                                className="w-full justify-start text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                              >
-                                <Sparkles className="h-3 w-3 mr-1" />
-                                Insert
-                              </Button>
-                            </motion.div>
-                          ))}
-                        </ScrollArea>
-                      </TabsContent>
-                    </Tabs>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
+            <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 hidden lg:flex"
-                onClick={() => setShowSidebar(!showSidebar)}
+                className="absolute top-2 right-2 z-10"
+                onClick={() => setShowToolbar(!showToolbar)}
               >
-                {showSidebar ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                {showToolbar ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
+              {isPreview ? (
+                <div
+                  className="prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[400px] overflow-auto mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner"
+                  style={{ fontSize: `${fontSize}px` }}
+                  dangerouslySetInnerHTML={{ __html: preview }}
+                />
+              ) : (
+                <Textarea
+                  ref={editorRef}
+                  value={content}
+                  onChange={(e) => updateContent(e.target.value)}
+                  placeholder="Start writing your note here..."
+                  className="min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
+                  style={{ fontSize: `${fontSize}px` }}
+                />
+              )}
+            </div>
+
+            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Font Size:</span>
+                <Slider
+                  min={12}
+                  max={24}
+                  step={1}
+                  value={[fontSize]}
+                  onValueChange={(value) => setFontSize(value[0])}
+                  className="w-32"
+                />
+                <span className="text-sm text-gray-500 dark:text-gray-400">{fontSize}px</span>
+              </div>
+              <div className="flex space-x-2">
+                <Button onClick={handleGenerateTitle} disabled={loading || !content} size="sm" variant="outline">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Title
+                </Button>
+                <Button onClick={handleImproveContent} disabled={loading || !content} size="sm" variant="outline">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Improve
+                </Button>
+              </div>
             </div>
 
             {error && (
@@ -521,7 +394,17 @@ export default function NoteEditor({ userId }) {
             )}
           </CardContent>
         </Card>
+
+
+        <NoteXAssistant
+          onInsert={(suggestion) => updateContent(content + suggestion)}
+          currentContent={content}
+          onUpdateTitle={updateTitle}
+          isFullscreen={isFullscreen}
+        />
+
+
       </motion.div>
     </AnimatePresence>
-  );
+  )
 }
