@@ -4,9 +4,9 @@ const { default: flattenColorPalette } = require("tailwindcss/lib/util/flattenCo
 module.exports = {
   darkMode: "class",
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
+    './pages/**/*.{js,jsx,ts,tsx}',
+    './components/**/*.{js,jsx,ts,tsx}',
+    './app/**/*.{js,jsx,ts,tsx}',
     './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
@@ -24,7 +24,7 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: {
           DEFAULT: "hsl(var(--background))",
-          dark: "#000000", // Pure black for AMOLED screens
+          dark: "#000000",
         },
         foreground: "hsl(var(--foreground))",
         primary: {
@@ -76,39 +76,21 @@ module.exports = {
           to: { height: 0 },
         },
         aurora: {
-          from: {
-            backgroundPosition: "50% 50%, 50% 50%",
-          },
-          to: {
-            backgroundPosition: "350% 50%, 350% 50%",
-          },
+          from: { backgroundPosition: "50% 50%, 50% 50%" },
+          to: { backgroundPosition: "350% 50%, 350% 50%" },
         },
         "border-beam": {
-          "0%": {
-            "offset-distance": "0%",
-          },
-          "100%": {
-            "offset-distance": "100%",
-          },
+          "0%": { "offset-distance": "0%" },
+          "100%": { "offset-distance": "100%" },
         },
         "spin-around": {
-          "0%": {
-            transform: "translateZ(0) rotate(0)",
-          },
-          "15%, 35%": {
-            transform: "translateZ(0) rotate(90deg)",
-          },
-          "65%, 85%": {
-            transform: "translateZ(0) rotate(270deg)",
-          },
-          "100%": {
-            transform: "translateZ(0) rotate(360deg)",
-          },
+          "0%": { transform: "translateZ(0) rotate(0)" },
+          "15%, 35%": { transform: "translateZ(0) rotate(90deg)" },
+          "65%, 85%": { transform: "translateZ(0) rotate(270deg)" },
+          "100%": { transform: "translateZ(0) rotate(360deg)" },
         },
         slide: {
-          to: {
-            transform: "translate(calc(100cqw - 100%), 0)",
-          },
+          to: { transform: "translate(calc(100cqw - 100%), 0)" },
         },
       },
       animation: {
@@ -127,7 +109,6 @@ module.exports = {
   ],
 };
 
-// This plugin adds each Tailwind color as a global CSS variable, e.g. var(--gray-200).
 function addVariablesForColors({ addBase, theme }) {
   let allColors = flattenColorPalette(theme("colors"));
   let newVars = Object.fromEntries(

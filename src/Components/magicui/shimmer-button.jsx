@@ -5,9 +5,9 @@ import { cn } from "../../lib/utils.ts";
 const ShimmerButton = React.forwardRef((
   {
     shimmerColor = "#89f7fe",
-    shimmerSize = "0.08em",
-    shimmerDuration = "3s",
-    borderRadius = "100px",
+    shimmerSize = "0.10em",
+    shimmerDuration = "4s",
+    borderRadius = "110px",
     background = "rgba(0, 0, 0, 1)",
     className,
     children,

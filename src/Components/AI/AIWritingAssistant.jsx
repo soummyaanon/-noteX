@@ -134,7 +134,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-          <motion.div
+<motion.div
   className="cursor-pointer"
   onClick={() => setIsBotExpanded(!isBotExpanded)}
   whileHover={{
@@ -191,9 +191,9 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
           >
             <Card className="w-full shadow-lg bg-gray-800 border-gray-700 border-2 border-opacity-50">
               <CardHeader className="pb-2 cursor-move" onPointerDown={(e) => dragControls.start(e)}>
-                <CardTitle className="flex items-center text-xl font-medium text-blue-400">
+                <CardTitle className="flex items-center text-xl font-medium text-blue-300">
                   <Sparkles className="h-5 w-5 mr-2 text-yellow-300 animate-pulse" />
-                  AI Assistant
+                  noteX AI Assistant
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
