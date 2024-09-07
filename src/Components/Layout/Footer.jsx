@@ -1,15 +1,9 @@
 import React from 'react';
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
-import { Label } from "../ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { cn } from "../../lib/utils";
-import { Github, Linkedin, Mail, ArrowRight } from 'lucide-react';
+import { Github, Linkedin, Mail } from 'lucide-react';
 import { RiTwitterXFill } from "react-icons/ri";
 
 export default function AdvancedFooter() {
@@ -21,22 +15,14 @@ export default function AdvancedFooter() {
     { name: 'LinkedIn', icon: Linkedin, url: 'https://www.linkedin.com/in/soumyapanda12/' },
   ];
 
-  const footerLinks = [
-    { name: 'About', href: '/about' },
-    { name: 'Privacy Policy', href: '/privacy-policy' },
-    { name: 'Terms of Service', href: '/terms-of-service' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'FAQ', href: '/faq' },
-  ];
-
   return (
-    <footer className={cn("mt-auto py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-background/90 to-background/80 backdrop-blur-sm border-t")}>
+    <footer className={cn("mt-auto py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-background via-background/90 to-background/80 backdrop-blur-sm border-t")}>
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-4">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="flex flex-col items-center md:items-start space-y-4">
             <h2 className="text-lg font-semibold text-primary">noteX</h2>
-            <p className="text-sm text-muted-foreground">
-              Empowering collaboration through innovative note-taking solutions.
+            <p className="text-sm text-muted-foreground text-center md:text-left">
+              Discover the power of AI-powered note-taking with noteX.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
@@ -56,43 +42,14 @@ export default function AdvancedFooter() {
                 </TooltipProvider>
               ))}
             </div>
+            <Button variant="link" size="sm" className="text-primary hover:underline mt-4">
+              <a href="https://youtu.be/21KHxlUH61I" target="_blank" rel="noopener noreferrer">FAQ</a>
+            </Button>
           </div>
-          <nav className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Quick Links</h3>
-            <ul className="space-y-2">
-              {footerLinks.map((link) => (
-                <li key={link.name}>
-                  <Button variant="link" size="sm" className="text-muted-foreground hover:text-primary transition-colors duration-200 p-0">
-                    <a href={link.href}>{link.name}</a>
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-primary">Feedback</h3>
-            <div className="space-y-2">
-              <Label htmlFor="feedback-email" className="text-sm font-medium text-muted-foreground">
-                Send us your feedback
-              </Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors duration-200">
-                      <a id="feedback-email" href="mailto:anonymousudgp9@gmail.com" aria-label="Send Feedback">
-                        <Mail className="w-5 h-5" />
-                      </a>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Send us your feedback</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              We value your feedback. Please send us an email to help us improve.
-            </p>
+          <div className="flex flex-col items-center md:items-end space-y-4">
+            <a href="https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2" target="_blank" rel="noopener noreferrer">
+              <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=dark" alt="noteX - Discover the power of AI-powered note-taking with noteX | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+            </a>
           </div>
         </div>
         <Separator className="my-8" />
