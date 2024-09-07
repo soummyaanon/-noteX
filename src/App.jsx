@@ -47,7 +47,7 @@ export default function App() {
         <ErrorBoundary>
           <div className="flex flex-col min-h-screen">
             <Header user={user} setUser={setUser} />
-            <main className="flex-grow container mx-auto px-4 py-8 max-w-7xl">
+            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-7xl">
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/" element={<Home user={user} />} />
