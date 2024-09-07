@@ -156,7 +156,7 @@ export default function AnimatedLogin({ setUser }) {
               transition={{ delay: 0.2, duration: 0.5 }}
             >
               <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Secure Login
+                noteX
               </CardTitle>
             </motion.div>
             <CardDescription className="text-center">
@@ -177,7 +177,7 @@ export default function AnimatedLogin({ setUser }) {
                 {step === 'login' && (
                   <form onSubmit={handleSubmit(onSubmitLogin)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="loginMethod" className="text-sm font-medium">Login Method</Label>
+                      <Label htmlFor="loginMethod" className="text-sm font-medium">Login Methods</Label>
                       <div className="flex space-x-2">
                         <Button
                           type="button"
@@ -262,12 +262,7 @@ export default function AnimatedLogin({ setUser }) {
                 )}
                 {step === 'otp' && (
                   <form onSubmit={handleSubmit(onSubmitOTP)} className="space-y-4">
-                    {securityPhrase && (
-                      <Alert>
-                        <Shield className="h-4 w-4" />
-                        <AlertDescription>Security Phrase: {securityPhrase}</AlertDescription>
-                      </Alert>
-                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="otp" className="text-sm font-medium">One-Time Password</Label>
                       <div className="flex justify-between">
@@ -370,7 +365,7 @@ export default function AnimatedLogin({ setUser }) {
           </CardContent>
           <CardFooter className="text-center text-sm text-muted-foreground">
             <Lock className="inline-block mr-2 h-4 w-4" />
-            Protected by state-of-the-art security
+            Powerd By Appwrite
           </CardFooter>
         </Card>
       </motion.div>
