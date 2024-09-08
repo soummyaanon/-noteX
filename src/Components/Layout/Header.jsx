@@ -119,12 +119,12 @@ export default function Component({ user, setUser }) {
               href="https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:block transition-transform hover:scale-105"
+              className="transition-transform hover:scale-105"
             >
               <img
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=light"
                 alt="noteX - Discover the power of AI-powered note-taking with noteX | Product Hunt"
-                className="w-32 h-7"
+                className="w-20 h-5 sm:w-32 sm:h-7"
                 width="128"
                 height="28"
               />
