@@ -284,6 +284,7 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="english">English</SelectItem>
+                                  <SelectItem value="hindi">Hindi</SelectItem> 
                                   <SelectItem value="spanish">Spanish</SelectItem>
                                   <SelectItem value="french">French</SelectItem>
                                   <SelectItem value="german">German</SelectItem>
