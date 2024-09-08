@@ -137,9 +137,9 @@ const NoteList = ({ userId }) => {
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8 }}
-      className="w-full max-w-6xl mx-auto mt-8 px-4"
+      className="w-full min-h-screen p-4 sm:p-6 lg:p-8"
     >
-      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5">
+      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 w-full h-full">
         <CardHeader>
           <CardTitle className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Your Notes</CardTitle>
         </CardHeader>

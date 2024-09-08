@@ -5,10 +5,10 @@ import React from "react"
 
 export default function AuroraBackground({ className, children, ...props }) {
   return (
-    <main className="min-h-screen w-full">
+    <div className="min-h-screen w-full">
       <div
         className={cn(
-          "relative flex flex-col min-h-screen items-center justify-center bg-zinc-50 dark:bg-black text-slate-950 transition-bg",
+          "relative flex flex-col min-h-screen w-full items-center justify-center bg-zinc-50 dark:bg-black text-slate-950 transition-bg",
           className
         )}
         {...props}
@@ -29,17 +29,17 @@ export default function AuroraBackground({ className, children, ...props }) {
               after:[background-size:200%,_100%]
               after:animate-aurora after:[background-attachment:fixed] after:mix-blend-difference
               pointer-events-none
-              absolute -inset-[10%] sm:-inset-[20px] opacity-30 will-change-transform
+              absolute inset-0 opacity-30 will-change-transform
               mix-blend-mode:soft-light
               [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]
             `)}
           ></div>
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-zinc-50/50 to-zinc-50 dark:via-black/50 dark:to-black pointer-events-none"></div>
         </div>
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 w-full">
           {children}
         </div>
       </div>
-    </main>
+    </div>
   )
 }

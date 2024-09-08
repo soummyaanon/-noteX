@@ -1,125 +1,92 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, updateUserProfile, uploadProfileImage, getProfileImage, deleteProfileImage, deleteUserAccount } from '../../Services/appwrite';
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { Loader2, Camera, User, Settings } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useNavigate } from 'react-router-dom';
+
+
 
 const UserProfile = () => {
     const [user, setUser] = useState(null);
-    const [name, setName] = useState('');
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [profileImageUrl, setProfileImageUrl] = useState('');
-    const [profileImageId, setProfileImageId] = useState('');
+    const [profileData, setProfileData] = useState({ name: '', username: '', profileImageUrl: '', profileImageId: '' });
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchUserData();
-    }, []);
-
-    /**
-     * Fetches the current user data and updates the state.
-     */
-    const fetchUserData = async () => {
-        setIsLoading(true);
+    const fetchUserData = useCallback(async () => {
         try {
             const currentUser = await getCurrentUser();
-            if (!currentUser) {
-                throw new Error('No user found');
-            }
+            if (!currentUser) throw new Error('No user found');
 
             setUser(currentUser);
-            setName(currentUser.name || '');
-            setUsername(currentUser.username || '');
-            setEmail(currentUser.email || '');
-            setProfileImageId(currentUser.profileImageId || '');
-
-            if (currentUser.profileImageId) {
-                try {
-                    const imageUrl = await getProfileImage(currentUser.profileImageId);
-                    setProfileImageUrl(imageUrl);
-                } catch (error) {
-                    console.error('Error fetching profile image:', error);
-                    setProfileImageUrl('');
-                }
-            }
+            setProfileData({
+                name: currentUser.name || '',
+                username: currentUser.username || '',
+                profileImageId: currentUser.profileImageId || '',
+                profileImageUrl: currentUser.profileImageId ? await getProfileImage(currentUser.profileImageId) : ''
+            });
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
             setIsLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData(prev => ({ ...prev, [name]: value }));
     };
 
-    /**
-     * Handles the change of the name input field.
-     * @param {Event} e - The input change event.
-     */
-    const handleNameChange = (e) => setName(e.target.value);
-
-    /**
-     * Handles the change of the username input field.
-     * @param {Event} e - The input change event.
-     */
-    const handleUsernameChange = (e) => setUsername(e.target.value);
-
-    /**
-     * Handles the upload of a new profile image.
-     * @param {Event} e - The file input change event.
-     */
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
-        if (file) {
-            try {
-                setIsSaving(true);
-                const uploadedFile = await uploadProfileImage(file);
+        if (!file) return;
 
-                if (profileImageId) {
-                    await deleteProfileImage(profileImageId);
-                }
-
-                const newImageUrl = await getProfileImage(uploadedFile.$id);
-                setProfileImageUrl(newImageUrl);
-                setProfileImageId(uploadedFile.$id);
-
-                await updateUserProfile(user.$id, {
-                    name,
-                    username,
-                    profileImageId: uploadedFile.$id
-                });
-
-                alert('Profile image updated successfully!');
-            } catch (error) {
-                console.error('Error uploading image:', error);
-                alert('Failed to upload image. Please try again.');
-            } finally {
-                setIsSaving(false);
+        setIsSaving(true);
+        try {
+            if (profileData.profileImageId) {
+                await deleteProfileImage(profileData.profileImageId);
             }
+
+            const uploadedFile = await uploadProfileImage(file);
+            const newImageUrl = await getProfileImage(uploadedFile.$id);
+
+            setProfileData(prev => ({
+                ...prev,
+                profileImageUrl: newImageUrl,
+                profileImageId: uploadedFile.$id
+            }));
+
+            await updateUserProfile(user.$id, {
+                ...profileData,
+                profileImageId: uploadedFile.$id
+            });
+
+            alert('Profile image updated successfully!');
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            alert('Failed to upload image. Please try again.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
-    /**
-     * Handles the submission of the profile update form.
-     * @param {Event} e - The form submit event.
-     */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSaving(true);
         try {
-            setIsSaving(true);
-            await updateUserProfile(user.$id, {
-                name,
-                username,
-                profileImageId
-            });
+            await updateUserProfile(user.$id, profileData);
             alert('Profile updated successfully!');
-            fetchUserData();
+            await fetchUserData();
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Failed to update profile. Please try again.');
@@ -128,14 +95,11 @@ const UserProfile = () => {
         }
     };
 
-    /**
-     * Handles the deletion of the user account.
-     */
     const handleDeleteAccount = async () => {
+        setIsSaving(true);
         try {
-            setIsSaving(true);
             await deleteUserAccount();
-            navigate('/login'); // Redirect to login page after successful deletion
+            navigate('/login');
         } catch (error) {
             console.error('Error deleting account:', error);
             if (error.message.includes("Invalid query: Attribute not found in schema: userId")) {
@@ -172,47 +136,38 @@ const UserProfile = () => {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-56">
-                            <div className="space-y-2">
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" className="w-full justify-start">
-                                            <User className="mr-2 h-4 w-4" />
-                                            Delete Account
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                This action cannot be undone. This will permanently delete your account,
-                                                all your notes, and remove your data from our servers.
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700">
-                                                {isSaving ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Deleting...
-                                                    </>
-                                                ) : (
-                                                    'Yes, delete my account'
-                                                )}
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                            </div>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" className="w-full justify-start">
+                                        <User className="mr-2 h-4 w-4" />
+                                        Delete Account
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your account,
+                                            all your notes, and remove your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700">
+                                            {isSaving ? 'Deleting...' : 'Yes, delete my account'}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </PopoverContent>
                     </Popover>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="flex flex-col items-center space-y-4">
-                            <Avatar className="h-24 w-24">
-                                <AvatarImage src={profileImageUrl} alt={name} />
-                                <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+                            <Avatar className="h-32 w-32">
+                                <AvatarImage src={profileData.profileImageUrl} alt={profileData.name} />
+                                <AvatarFallback>{profileData.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div className="relative">
                                 <Input 
@@ -220,34 +175,26 @@ const UserProfile = () => {
                                     type="file" 
                                     onChange={handleImageUpload}
                                     className="hidden"
+                                    disabled={isSaving}
                                 />
-                                <Label htmlFor="profileImage" className="cursor-pointer flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md">
+                                <Label htmlFor="profileImage" className="cursor-pointer flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md transition duration-300">
                                     <Camera className="h-4 w-4" />
-                                    <span>Change Photo</span>
+                                    <span>{isSaving ? 'Uploading...' : 'Change Photo'}</span>
                                 </Label>
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" value={name} onChange={handleNameChange} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="username">Username</Label>
-                            <Input id="username" value={username} onChange={handleUsernameChange} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input id="email" value={email} disabled />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input id="name" name="name" value={profileData.name} onChange={handleInputChange} className="w-full" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="username">Username</Label>
+                                <Input id="username" name="username" value={profileData.username} onChange={handleInputChange} className="w-full" />
+                            </div>
                         </div>
                         <Button type="submit" className="w-full" disabled={isSaving}>
-                            {isSaving ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Saving...
-                                </>
-                            ) : (
-                                'Save Changes'
-                            )}
+                            {isSaving ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </form>
                 </CardContent>
