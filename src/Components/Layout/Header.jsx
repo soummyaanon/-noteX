@@ -111,9 +111,25 @@ export default function Component({ user, setUser }) {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl"></div>
       <nav className="relative container mx-auto px-4 py-2">
         <div className="flex items-center justify-between bg-background/30 backdrop-blur-md rounded-full p-2 shadow-lg">
-          <Link to="/" className="flex items-center">
-            <Logo />
-          </Link>
+          <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center">
+              <Logo />
+            </Link>
+            <a
+              href="https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:block transition-transform hover:scale-105"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=dark"
+                alt="noteX - Discover the power of AI-powered note-taking with noteX | Product Hunt"
+                className="w-32 h-7"
+                width="128"
+                height="28"
+              />
+            </a>
+          </div>
           
           <div className="hidden md:flex items-center space-x-4">
             {navItems}
