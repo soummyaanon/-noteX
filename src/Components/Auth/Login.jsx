@@ -240,7 +240,7 @@ export default function AnimatedLogin({ setUser }) {
                             <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                             <Input
                               id="phoneNumber"
-                              placeholder="1234567890"
+                              placeholder="Phone Number"
                               className="pl-10"
                               {...register('phoneNumber', { 
                                 required: 'Phone number is required',
