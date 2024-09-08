@@ -10,8 +10,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Loader2, Camera, User, Settings } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-
-
 const UserProfile = () => {
     const [user, setUser] = useState(null);
     const [profileData, setProfileData] = useState({ name: '', username: '', profileImageUrl: '', profileImageId: '' });
@@ -164,7 +162,7 @@ const UserProfile = () => {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="flex flex-col items-center space-y-4">
+                        <div className="flex items-start space-x-6">
                             <Avatar className="h-32 w-32">
                                 <AvatarImage src={profileData.profileImageUrl} alt={profileData.name} />
                                 <AvatarFallback>{profileData.name.charAt(0)}</AvatarFallback>
