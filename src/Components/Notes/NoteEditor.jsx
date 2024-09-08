@@ -104,7 +104,7 @@ export default function NoteEditor({ userId }) {
       }
       lastSavedRef.current = { title, content }
       setSaveStatus('Saved')
-      setTimeout(() => setSaveStatus(''), 2000)
+      setTimeout(() => setSaveStatus(''), 3000)
     } catch (error) {
       setError(`Failed to save note: ${error.message}`)
       setSaveStatus('')
@@ -114,7 +114,7 @@ export default function NoteEditor({ userId }) {
   }, [title, content, userId, noteId, navigate])
 
   const debouncedSave = useCallback(
-    debounce(handleSave, 2000),
+    debounce(handleSave, 3000),
     [handleSave]
   )
 
