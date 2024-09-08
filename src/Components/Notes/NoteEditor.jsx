@@ -26,8 +26,6 @@ import debounce from 'lodash.debounce'
 import NoteXAssistant from '../AI/AIWritingAssistant'
 import { motion, AnimatePresence } from 'framer-motion'
 
-
-
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID
 
 export default function NoteEditor({ userId }) {
@@ -48,6 +46,7 @@ export default function NoteEditor({ userId }) {
   const [redoStack, setRedoStack] = useState([])
   const editorRef = useRef(null)
   const fullscreenRef = useRef(null)
+  const lastSavedRef = useRef({ title: '', content: '' })
 
   useEffect(() => {
     if (noteId) {
@@ -71,6 +70,7 @@ export default function NoteEditor({ userId }) {
       setTitle(note.title)
       setContent(note.content)
       setUndoStack([{ title: note.title, content: note.content }])
+      lastSavedRef.current = { title: note.title, content: note.content }
     } catch (error) {
       setError('Failed to fetch note. Please try again.')
     } finally {
@@ -79,6 +79,10 @@ export default function NoteEditor({ userId }) {
   }
 
   const handleSave = useCallback(async () => {
+    if (title === lastSavedRef.current.title && content === lastSavedRef.current.content) {
+      return; // No changes, skip saving
+    }
+
     setLoading(true)
     setSaveStatus('Saving...')
     setError(null)
@@ -95,8 +99,10 @@ export default function NoteEditor({ userId }) {
         await updateDocument(NOTES_COLLECTION_ID, noteId, noteData)
       } else {
         noteData.created_at = new Date().toISOString()
-        await createDocument(NOTES_COLLECTION_ID, noteData)
+        const newNote = await createDocument(NOTES_COLLECTION_ID, noteData)
+        navigate(`/notes/${newNote.$id}`, { replace: true })
       }
+      lastSavedRef.current = { title, content }
       setSaveStatus('Saved')
       setTimeout(() => setSaveStatus(''), 2000)
     } catch (error) {
@@ -105,7 +111,7 @@ export default function NoteEditor({ userId }) {
     } finally {
       setLoading(false)
     }
-  }, [title, content, userId, noteId])
+  }, [title, content, userId, noteId, navigate])
 
   const debouncedSave = useCallback(
     debounce(handleSave, 2000),
@@ -113,7 +119,7 @@ export default function NoteEditor({ userId }) {
   )
 
   useEffect(() => {
-    if (title || content) {
+    if (title !== lastSavedRef.current.title || content !== lastSavedRef.current.content) {
       setSaveStatus('Saving...')
       debouncedSave()
     }
@@ -121,6 +127,18 @@ export default function NoteEditor({ userId }) {
       debouncedSave.cancel()
     }
   }, [title, content, debouncedSave])
+
+  const updateTitle = useCallback((newTitle) => {
+    setUndoStack((prevStack) => [...prevStack, { title, content }])
+    setRedoStack([])
+    setTitle(newTitle)
+  }, [title, content])
+
+  const updateContent = useCallback((newContent) => {
+    setUndoStack((prevStack) => [...prevStack, { title, content }])
+    setRedoStack([])
+    setContent(newContent)
+  }, [title, content])
 
   const insertMarkdown = (markdownSymbol, placeholder = '') => {
     const textarea = editorRef.current
@@ -164,18 +182,6 @@ export default function NoteEditor({ userId }) {
       document.exitFullscreen()
       setIsFullscreen(false)
     }
-  }
-
-  const updateContent = (newContent) => {
-    setUndoStack([...undoStack, { title, content }])
-    setRedoStack([])
-    setContent(newContent)
-  }
-
-  const updateTitle = (newTitle) => {
-    setUndoStack([...undoStack, { title, content }])
-    setRedoStack([])
-    setTitle(newTitle)
   }
 
   const handleUndo = () => {
