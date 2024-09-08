@@ -111,7 +111,7 @@ export default function Component({ user, setUser }) {
       <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl"></div>
       <nav className="relative container mx-auto px-4 py-2">
         <div className="flex items-center justify-between bg-background/30 backdrop-blur-md rounded-full p-2 shadow-lg">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center">
               <Logo />
             </Link>
@@ -122,7 +122,7 @@ export default function Component({ user, setUser }) {
               className="hidden sm:block transition-transform hover:scale-105"
             >
               <img
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=dark"
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=light"
                 alt="noteX - Discover the power of AI-powered note-taking with noteX | Product Hunt"
                 className="w-32 h-7"
                 width="128"
