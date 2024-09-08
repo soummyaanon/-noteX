@@ -68,11 +68,11 @@ export default function Component() {
 
   if (loading) {
     return (
-      <Card className="w-full max-w-3xl mx-auto mt-8 shadow-lg">
-        <CardContent className="p-6">
-          <Skeleton className="h-8 w-3/4 mb-4" />
-          <Skeleton className="h-4 w-1/2 mb-8" />
-          <Skeleton className="h-40 w-full" />
+      <Card className="w-full mx-auto mt-4 shadow-lg">
+        <CardContent className="p-4">
+          <Skeleton className="h-6 w-3/4 mb-3" />
+          <Skeleton className="h-4 w-1/2 mb-6" />
+          <Skeleton className="h-32 w-full" />
         </CardContent>
       </Card>
     );
@@ -80,7 +80,7 @@ export default function Component() {
 
   if (error) {
     return (
-      <Alert variant="destructive" className="w-full max-w-3xl mx-auto mt-8">
+      <Alert variant="destructive" className="w-full mx-auto mt-4">
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>{error}</AlertDescription>
       </Alert>
@@ -89,7 +89,7 @@ export default function Component() {
 
   if (!note) {
     return (
-      <Alert className="w-full max-w-3xl mx-auto mt-8">
+      <Alert className="w-full mx-auto mt-4">
         <AlertTitle>Note not found</AlertTitle>
         <AlertDescription>The requested note could not be found.</AlertDescription>
       </Alert>
@@ -102,17 +102,17 @@ export default function Component() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
-      className={`p-4 sm:p-6 md:p-8 ${zenMode ? 'bg-background min-h-screen' : ''}`}
+      className={`p-2 sm:p-4 md:p-6 ${zenMode ? 'bg-background min-h-screen' : ''}`}
     >
-      <Card className={`w-full mx-auto shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${zenMode ? 'max-w-4xl bg-background border-none shadow-none' : 'max-w-3xl bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20'}`}>
-        <CardContent className={`p-6 ${zenMode ? 'max-w-2xl mx-auto' : ''}`}>
+      <Card className={`w-full mx-auto shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${zenMode ? 'max-w-4xl bg-background border-none shadow-none' : 'bg-gradient-to-br from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20'}`}>
+        <CardContent className={`p-3 sm:p-4 md:p-6 ${zenMode ? 'max-w-2xl mx-auto' : ''}`}>
           <motion.div 
-            className={`flex justify-between items-center mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
+            className={`flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h1 className="text-3xl font-bold text-primary">{note.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2 sm:mb-0">{note.title}</h1>
             <div className="flex items-center space-x-2">
               <TooltipProvider>
                 <Tooltip>
@@ -153,7 +153,7 @@ export default function Component() {
             </div>
           </motion.div>
           <motion.div 
-            className={`flex items-center space-x-2 text-sm text-muted-foreground mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
+            className={`flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground mb-4 sm:mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
@@ -162,7 +162,7 @@ export default function Component() {
             <span>Last updated: {new Date(note.$updatedAt).toLocaleString()}</span>
           </motion.div>
           <motion.div 
-            className={`flex space-x-2 mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
+            className={`flex flex-wrap gap-2 mb-4 sm:mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -220,11 +220,11 @@ export default function Component() {
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="preview" className="flex items-center justify-center space-x-2">
                 <Eye className="h-4 w-4" />
-                <span>Preview</span>
+                <span className="hidden sm:inline">Preview</span>
               </TabsTrigger>
               <TabsTrigger value="source" className="flex items-center justify-center space-x-2">
                 <Code className="h-4 w-4" />
-                <span>Source</span>
+                <span className="hidden sm:inline">Source</span>
               </TabsTrigger>
             </TabsList>
             <AnimatePresence mode="wait">
@@ -237,13 +237,13 @@ export default function Component() {
               >
                 <TabsContent value="preview" className="mt-4">
                   <div 
-                    className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-lg leading-relaxed' : ''}`} 
+                    className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base'}`} 
                     style={{ textAlign: textAlignment }}
                     dangerouslySetInnerHTML={{ __html: marked(note.content || '') }} 
                   />
                 </TabsContent>
                 <TabsContent value="source" className="mt-4">
-                  <pre className={`p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-sm' : ''}`}>
+                  <pre className={`p-2 sm:p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                     <code>{note.content || ''}</code>
                   </pre>
                 </TabsContent>
@@ -257,14 +257,14 @@ export default function Component() {
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-6"
+                className="mt-4 sm:mt-6"
               >
                 <TextToSpeech text={note.content || ''} />
               </motion.div>
             )}
           </AnimatePresence>
         </CardContent>
-        <CardFooter className={`bg-muted/50 p-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}>
+        <CardFooter className={`bg-muted/50 p-3 sm:p-4 md:p-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}>
           <Button 
             variant="outline" 
             onClick={() => navigate('/notes')} 
