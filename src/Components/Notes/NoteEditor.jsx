@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getDocument, createDocument, updateDocument } from '../../Services/appwrite'
-import { getAISuggestion, getContentImprovements, generateTitleSuggestion } from '../../Services/aiService'
+import {  getContentImprovements, generateTitleSuggestion } from '../../Services/aiService'
 import { marked } from 'marked'
 import { Card, CardContent } from "../ui/card"
 import { Input } from "../ui/input"
@@ -80,7 +80,7 @@ export default function NoteEditor({ userId }) {
 
   const handleSave = useCallback(async () => {
     if (title === lastSavedRef.current.title && content === lastSavedRef.current.content) {
-      return; // No changes, skip saving
+      return
     }
 
     setLoading(true)
@@ -237,18 +237,18 @@ export default function NoteEditor({ userId }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.3 }}
-        className={`p-4 ${theme === 'dark' ? 'dark' : ''}`}
+        className={`p-2 sm:p-4 ${theme === 'dark' ? 'dark' : ''}`}
         ref={fullscreenRef}
       >
-        <Card className="w-full max-w-5xl mx-auto shadow-lg overflow-hidden bg-white dark:bg-gray-800">
-          <CardContent className="p-6">
+        <Card className="w-full mx-auto shadow-lg overflow-hidden bg-white dark:bg-gray-800">
+          <CardContent className="p-2 sm:p-4 md:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
               <Input
                 type="text"
                 value={title}
                 onChange={(e) => updateTitle(e.target.value)}
                 placeholder="Untitled Note"
-                className="text-2xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0"
+                className="text-xl sm:text-2xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0"
               />
               <div className="flex items-center space-x-2 flex-shrink-0">
                 {saveStatus && (
@@ -347,7 +347,7 @@ export default function NoteEditor({ userId }) {
               </Button>
               {isPreview ? (
                 <div
-                  className="prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[400px] overflow-auto mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner"
+                  className="prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[200px] sm:min-h-[300px] md:min-h-[400px] overflow-auto mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner"
                   style={{ fontSize: `${fontSize}px` }}
                   dangerouslySetInnerHTML={{ __html: preview }}
                 />
@@ -357,7 +357,7 @@ export default function NoteEditor({ userId }) {
                   value={content}
                   onChange={(e) => updateContent(e.target.value)}
                   placeholder="Start writing your note here..."
-                  className="min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
+                  className="min-h-[200px] sm:min-h-[300px] md:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
                   style={{ fontSize: `${fontSize}px` }}
                 />
               )}
@@ -372,7 +372,7 @@ export default function NoteEditor({ userId }) {
                   step={1}
                   value={[fontSize]}
                   onValueChange={(value) => setFontSize(value[0])}
-                  className="w-32"
+                  className="w-24 sm:w-32"
                 />
                 <span className="text-sm text-gray-500 dark:text-gray-400">{fontSize}px</span>
               </div>
@@ -401,15 +401,12 @@ export default function NoteEditor({ userId }) {
           </CardContent>
         </Card>
 
-
         <NoteXAssistant
           onInsert={(suggestion) => updateContent(content + suggestion)}
           currentContent={content}
           onUpdateTitle={updateTitle}
           isFullscreen={isFullscreen}
         />
-
-
       </motion.div>
     </AnimatePresence>
   )
