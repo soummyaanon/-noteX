@@ -131,28 +131,27 @@ const NoteList = ({ userId }) => {
       </CardContent>
     </Card>
   );
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.8 }}
-      className="w-full min-h-screen p-4 sm:p-6 lg:p-8"
+      className="w-full min-h-screen p-2 sm:p-4 md:p-6 lg:p-8"
     >
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 w-full h-full">
         <CardHeader>
-          <CardTitle className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Your Notes</CardTitle>
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Your Notes</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-            <Button asChild className="bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80 text-primary-foreground">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
+            <Button asChild className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80 text-primary-foreground">
               <Link to="/new-note">
                 <Plus className="mr-2 h-4 w-4" /> Create New Note
               </Link>
             </Button>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,7 +166,7 @@ const NoteList = ({ userId }) => {
               </Button>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-6">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4 sm:mb-6">
             <div className="relative w-full">
               <Input
                 type="text"
@@ -201,7 +200,7 @@ const NoteList = ({ userId }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-6"
+                className="mb-4 sm:mb-6"
               >
                 <Card>
                   <CardHeader>
@@ -211,14 +210,14 @@ const NoteList = ({ userId }) => {
                     <div className="space-y-2">
                       {visualizationData.map((item, index) => (
                         <div key={index} className="flex items-center">
-                          <div className="w-24 truncate mr-2">{item.title}</div>
+                          <div className="w-16 sm:w-24 truncate mr-2">{item.title}</div>
                           <div className="flex-grow bg-secondary/20 h-2 rounded-full overflow-hidden">
                             <div 
                               className="bg-primary h-full rounded-full" 
                               style={{ width: `${item.relevance * 100}%` }}
                             />
                           </div>
-                          <div className="ml-2 text-sm">{(item.relevance * 100).toFixed(0)}%</div>
+                          <div className="ml-2 text-xs sm:text-sm">{(item.relevance * 100).toFixed(0)}%</div>
                         </div>
                       ))}
                     </div>
@@ -241,7 +240,7 @@ const NoteList = ({ userId }) => {
           </Tabs>
         </CardContent>
         <CardFooter>
-          <p className="text-sm text-muted-foreground">Total notes: {notes.length}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground">Total notes: {notes.length}</p>
         </CardFooter>
       </Card>
     </motion.div>
@@ -271,7 +270,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
   }
 
   return (
-    <ScrollArea className="h-[60vh]">
+    <ScrollArea className="h-[60vh] sm:h-[50vh] md:h-[60vh]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {notes.map(note => (
           <motion.div
@@ -285,7 +284,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
                 <div className="flex items-start justify-between mb-2">
                   <Link to={`/notes/${note.$id}`} className="flex items-center">
                     <FileText className="mr-2 h-4 w-4" />
-                    <span className="text-xl font-semibold line-clamp-1">{note.title}</span>
+                    <span className="text-lg sm:text-xl font-semibold line-clamp-1">{note.title}</span>
                   </Link>
                   <Button
                     variant="ghost"
@@ -295,7 +294,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
                     <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
                   </Button>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                   Last updated: {new Date(note.$updatedAt).toLocaleString()}
                 </p>
                 {searchQuery && note.similarity !== undefined && (
@@ -303,7 +302,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
                     Relevance: {(note.similarity * 100).toFixed(2)}%
                   </Badge>
                 )}
-                <p className="text-sm line-clamp-3">{note.content}</p>
+                <p className="text-xs sm:text-sm line-clamp-3">{note.content}</p>
               </CardContent>
             </Card>
           </motion.div>
