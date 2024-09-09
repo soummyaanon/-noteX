@@ -37,8 +37,12 @@ export default function Component() {
       setNote(fetchedNote);
       setCurrentUser(user);
     } catch (err) {
-      setError('Failed to fetch the note. Please try again.');
       console.error('Error fetching note:', err);
+      if (err.code === 404) {
+        setError('Note not found. It may have been deleted or you may not have permission to view it.');
+      } else {
+        setError('An error occurred while fetching the note. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,6 +70,23 @@ export default function Component() {
     setTextAlignment(alignment);
   };
 
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: note.title,
+          text: note.content,
+          url: window.location.href
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      alert('Sharing is not supported on this browser. You can copy the URL to share.');
+    }
+  };
+
   if (loading) {
     return (
       <Card className="w-full mx-auto mt-4 shadow-lg">
@@ -83,6 +104,13 @@ export default function Component() {
       <Alert variant="destructive" className="w-full mx-auto mt-4">
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>{error}</AlertDescription>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/notes')} 
+          className="mt-4 w-full transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-primary hover:text-primary-foreground"
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" /> Back to Notes
+        </Button>
       </Alert>
     );
   }
@@ -92,6 +120,13 @@ export default function Component() {
       <Alert className="w-full mx-auto mt-4">
         <AlertTitle>Note not found</AlertTitle>
         <AlertDescription>The requested note could not be found.</AlertDescription>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/notes')} 
+          className="mt-4 w-full transition-all duration-200 ease-in-out transform hover:scale-105 hover:bg-primary hover:text-primary-foreground"
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" /> Back to Notes
+        </Button>
       </Alert>
     );
   }
@@ -186,7 +221,7 @@ export default function Component() {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={() => alert('Share functionality to be implemented')}>
+                  <Button variant="outline" size="sm" onClick={handleShare}>
                     <Share2 className="h-4 w-4 mr-2" /> Share
                   </Button>
                 </TooltipTrigger>
