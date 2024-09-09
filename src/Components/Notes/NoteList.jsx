@@ -4,7 +4,7 @@ import { listDocuments, toggleNoteFavorite } from '../../Services/appwrite';
 import { Query } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2 } from "lucide-react";
+import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2 } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Input } from "../ui/input";
@@ -14,6 +14,7 @@ import * as use from '@tensorflow-models/universal-sentence-encoder';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Badge } from "../ui/badge"
 import { Skeleton } from "../ui/skeleton"
+import { toast } from "../ui/use-toast"
 
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 
@@ -124,6 +125,35 @@ const NoteList = ({ userId }) => {
     }));
   }, [sortedNotes]);
 
+  const handleShare = async (note) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: note.title,
+          text: note.content,
+          url: `${window.location.origin}/notes/${note.$id}`
+        });
+        toast({
+          title: "Shared successfully",
+          description: "The note has been shared.",
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+        toast({
+          title: "Sharing failed",
+          description: "There was an error while sharing the note.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Sharing not supported",
+        description: "Your browser doesn't support sharing. You can copy the URL to share.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (error) return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardContent className="pt-6">
@@ -131,6 +161,7 @@ const NoteList = ({ userId }) => {
       </CardContent>
     </Card>
   );
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -232,10 +263,10 @@ const NoteList = ({ userId }) => {
               <TabsTrigger value="favorites">Favorites</TabsTrigger>
             </TabsList>
             <TabsContent value="all">
-              <NoteGrid notes={sortedNotes} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} searchQuery={searchQuery} />
+              <NoteGrid notes={sortedNotes} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} handleShare={handleShare} searchQuery={searchQuery} />
             </TabsContent>
             <TabsContent value="favorites">
-              <NoteGrid notes={sortedNotes.filter(note => note.isFavorite)} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} searchQuery={searchQuery} />
+              <NoteGrid notes={sortedNotes.filter(note => note.isFavorite)} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} handleShare={handleShare} searchQuery={searchQuery} />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -247,7 +278,7 @@ const NoteList = ({ userId }) => {
   );
 };
 
-const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
+const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, searchQuery }) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -286,13 +317,22 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, searchQuery }) => {
                     <FileText className="mr-2 h-4 w-4" />
                     <span className="text-lg sm:text-xl font-semibold line-clamp-1">{note.title}</span>
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleToggleFavorite(note.$id)}
-                  >
-                    <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-                  </Button>
+                  <div className="flex items-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleToggleFavorite(note.$id)}
+                    >
+                      <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleShare(note)}
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground mb-2">
                   Last updated: {new Date(note.$updatedAt).toLocaleString()}
