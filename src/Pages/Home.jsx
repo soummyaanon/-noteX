@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "../Components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../Components/ui/card";
-import { Pencil, Bot, Lock, Zap, FileText, Search, Star } from 'lucide-react';
+import { Pencil, Bot, Lock, Share2, Zap, FileText, Search, Star } from 'lucide-react';
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from 'framer-motion';
 import AuroraBackground from "../Components/ui/aurora-background";
@@ -23,17 +23,17 @@ const FeatureIcon = React.memo(({ Icon }) => (
 ));
 
 const features = [
-  { title: "noteX Bot", description: "Get AI-powered assistance", Icon: Bot },
-  { title: "Create Note", description: "Start a new note or document", Icon: Pencil },
-  { title: "Recent Notes", description: "Access your latest work", Icon: FileText },
-  { title: "Search", description: "Find notes quickly", Icon: Search },
-  { title: "Favorites", description: "Access your starred notes", Icon: Star },
-  { title: "Google Gemini Pro", description: "Get AI-powered insights", Icon: Zap },
+  { title: "noteX Bot", description: "AI-powered by Gemini Pro", Icon: Bot },
+  { title: "Create Note", description: "Start fresh, write now", Icon: Pencil },
+  { title: "Recent Notes", description: "Your latest work at a glance", Icon: FileText },
+  { title: "Search", description: "Find anything instantly", Icon: Search },
+  { title: "Favorites", description: "Your top notes, one click away", Icon: Star },
+  { title: "Share Your Note", description: "Effortless sharing", Icon: Share2 },
 ];
 
 const notLoggedInFeatures = [
-  { title: "notex Bot", description: "Get AI-powered assistance", Icon: Bot },
-  { title: "Smart Organization", description: "Keep your thoughts in order", Icon: Zap },
+  { title: "noteX Bot", description: "AI assistance at your service", Icon: Bot },
+  { title: "Smart Organization", description: "Keep thoughts in order", Icon: Zap },
   { title: "Secure and Private", description: "Your data, your control", Icon: Lock }
 ];
 
