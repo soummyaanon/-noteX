@@ -113,7 +113,7 @@ export default function Component() {
             transition={{ delay: 0.2 }}
           >
             <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-2 sm:mb-0">{note.title}</h1>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mt-2 sm:mt-0">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -162,7 +162,7 @@ export default function Component() {
             <span>Last updated: {new Date(note.$updatedAt).toLocaleString()}</span>
           </motion.div>
           <motion.div 
-            className={`flex flex-wrap gap-2 mb-4 sm:mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
+            className={`flex flex-wrap justify-center sm:justify-start gap-2 mb-4 sm:mb-6 ${zenMode ? 'opacity-0 hover:opacity-100 transition-opacity duration-300' : ''}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -170,24 +170,24 @@ export default function Component() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => navigate(`/edit-note/${noteId}`)}>
-                    <Pencil className="h-4 w-4" />
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/edit-note/${noteId}`)}>
+                    <Pencil className="h-4 w-4 mr-2" /> Edit
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Edit Note</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => setShowTextToSpeech(!showTextToSpeech)}>
-                    <Volume2 className="h-4 w-4" />
+                  <Button variant="outline" size="sm" onClick={() => setShowTextToSpeech(!showTextToSpeech)}>
+                    <Volume2 className="h-4 w-4 mr-2" /> Listen
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Text to Speech</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="icon" onClick={() => alert('Share functionality to be implemented')}>
-                    <Share2 className="h-4 w-4" />
+                  <Button variant="outline" size="sm" onClick={() => alert('Share functionality to be implemented')}>
+                    <Share2 className="h-4 w-4 mr-2" /> Share
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Share Note</TooltipContent>
@@ -196,8 +196,8 @@ export default function Component() {
                 <TooltipTrigger asChild>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
@@ -220,11 +220,11 @@ export default function Component() {
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="preview" className="flex items-center justify-center space-x-2">
                 <Eye className="h-4 w-4" />
-                <span className="hidden sm:inline">Preview</span>
+                <span>Preview</span>
               </TabsTrigger>
               <TabsTrigger value="source" className="flex items-center justify-center space-x-2">
                 <Code className="h-4 w-4" />
-                <span className="hidden sm:inline">Source</span>
+                <span>Source</span>
               </TabsTrigger>
             </TabsList>
             <AnimatePresence mode="wait">
