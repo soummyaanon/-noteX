@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
+import { Button } from "../Components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../Components/ui/card";
 import { Pencil, Bot, Lock, Share2, Zap, FileText, Search, Mic } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from 'framer-motion';
 import AuroraBackground from "../Components/ui/aurora-background";
 import { FlipWords } from "../Components/ui/flip-words";
