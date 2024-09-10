@@ -143,7 +143,7 @@ export default function HomePage() {
       transition={{ duration: 0.5 }}
       className="space-y-8"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {notLoggedInFeatures.map((feature, index) => (
           <motion.div
             key={feature.title}
@@ -177,7 +177,7 @@ export default function HomePage() {
   ), [handleNavigation]);
 
   return (
-    <AuroraBackground class= "z-10" >
+    <AuroraBackground class="z-0">
       <AnimatePresence>
         {authState.isLoading ? (
           <motion.div
@@ -197,10 +197,10 @@ export default function HomePage() {
             transition={{ duration: 0.5 }}
             className={cn("min-h-screen flex items-center justify-center p-4")}
           >
-            <div className="w-full max-w-5xl">
+            <div className="w-full max-w-7xl">
               <Card className={cn("w-full bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
                 <CardHeader className="pb-6">
-                  <CardTitle className="text-3xl md:text-4xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                  <CardTitle className="text-3xl md:text-4xl lg:text-5xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
                     <Cover>
                       {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                     </Cover>
@@ -208,18 +208,18 @@ export default function HomePage() {
                   <FlipWords
                     words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
                     duration={3000}
-                    className="text-lg md:text-xl font-light text-center mt-4 text-gray-200 font-Orbitron"
+                    className="text-lg md:text-xl lg:text-2xl font-light text-center mt-4 text-gray-200 font-Orbitron"
                   />
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-4 sm:px-6 md:px-8 lg:px-12">
                   {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
                 </CardContent>
-                <CardFooter className="justify-center mt-6">
-                  <p className="text-sm text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
+                <CardFooter className="justify-center mt-6 text-center px-4">
+                  <p className="text-sm md:text-base text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
               </Card>
-              <div className="mt-2">
-              <GoogleGeminiEffectDemo />
+              <div className="mt-8 space-y-8">
+                <GoogleGeminiEffectDemo />
                 <InfiniteMovingCardsDemo />
               </div>
             </div>
