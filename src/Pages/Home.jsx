@@ -11,6 +11,8 @@ import { getCurrentUser } from '../Services/appwrite';
 import { Cover } from "../Components/ui/cover";
 import { PulseLoader } from 'react-spinners';
 import { BorderBeam } from "../Components/magicui/border-beam";
+import InfiniteMovingCardsDemo from "../Components/ui/ReviewCard";
+
 
 const FeatureIcon = React.memo(({ Icon }) => (
   <motion.div
@@ -241,6 +243,7 @@ export default function HomePage() {
                   <p className="text-xs sm:text-sm text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
               </Card>
+              <InfiniteMovingCardsDemo /> {/* Placed ReviewCard below the main card */}
             </div>
           </motion.div>
         )}
