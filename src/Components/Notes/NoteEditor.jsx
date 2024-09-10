@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getDocument, createDocument, updateDocument } from '../../Services/appwrite'
-import {  getContentImprovements, generateTitleSuggestion } from '../../Services/aiService'
+import { getContentImprovements, generateTitleSuggestion } from '../../Services/aiService'
 import { marked } from 'marked'
 import { Card, CardContent } from "../ui/card"
 import { Input } from "../ui/input"
@@ -11,7 +11,7 @@ import {
   Loader2, Bold, Italic, List, ListOrdered, Link, Image, Code, Quote, 
   Heading1, Heading2, Heading3, Sparkles, Menu, Save, Eye, Edit,
   ChevronDown, ChevronUp, X, Maximize2, Minimize2,
-  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Bot
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Mic
 } from 'lucide-react'
 import { Button } from "../ui/button"
 import {
@@ -25,14 +25,14 @@ import { Slider } from "../ui/slider"
 import debounce from 'lodash.debounce'
 import NoteXAssistant from '../AI/AIWritingAssistant'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useToast } from "../ui/use-toast"
 
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID
 
 export default function NoteEditor({ userId }) {
   const { noteId } = useParams()
   const navigate = useNavigate()
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [note, setNote] = useState({ title: '', content: '' })
   const [preview, setPreview] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -44,33 +44,46 @@ export default function NoteEditor({ userId }) {
   const [theme, setTheme] = useState('light')
   const [undoStack, setUndoStack] = useState([])
   const [redoStack, setRedoStack] = useState([])
+  const [speechRecognition, setSpeechRecognition] = useState({
+    isListening: false,
+    transcript: '',
+    isSupported: false,
+    interimTranscript: '',
+    finalTranscript: '',
+  })
+  
   const editorRef = useRef(null)
   const fullscreenRef = useRef(null)
   const lastSavedRef = useRef({ title: '', content: '' })
+  const recognitionRef = useRef(null)
+  const { toast } = useToast()
 
   useEffect(() => {
-    if (noteId) {
-      fetchNote()
-    }
+    if (noteId) fetchNote()
+    initializeSpeechRecognition()
   }, [noteId])
 
   useEffect(() => {
-    marked.setOptions({
-      gfm: true,
-      breaks: true,
-      headerIds: false,
-    })
-    setPreview(marked(content))
-  }, [content])
+    setPreview(marked(note.content))
+  }, [note.content])
+
+  useEffect(() => {
+    if (speechRecognition.finalTranscript) {
+      setNote(prevNote => ({
+        ...prevNote,
+        content: prevNote.content + ' ' + speechRecognition.finalTranscript
+      }))
+      setSpeechRecognition(prev => ({ ...prev, finalTranscript: '' }))
+    }
+  }, [speechRecognition.finalTranscript])
 
   const fetchNote = async () => {
     setLoading(true)
     try {
-      const note = await getDocument(NOTES_COLLECTION_ID, noteId)
-      setTitle(note.title)
-      setContent(note.content)
-      setUndoStack([{ title: note.title, content: note.content }])
-      lastSavedRef.current = { title: note.title, content: note.content }
+      const fetchedNote = await getDocument(NOTES_COLLECTION_ID, noteId)
+      setNote({ title: fetchedNote.title, content: fetchedNote.content })
+      setUndoStack([{ title: fetchedNote.title, content: fetchedNote.content }])
+      lastSavedRef.current = { title: fetchedNote.title, content: fetchedNote.content }
     } catch (error) {
       setError('Failed to fetch note. Please try again.')
     } finally {
@@ -78,8 +91,58 @@ export default function NoteEditor({ userId }) {
     }
   }
 
+  const initializeSpeechRecognition = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (SpeechRecognition) {
+      setSpeechRecognition(prev => ({ ...prev, isSupported: true }))
+      recognitionRef.current = new SpeechRecognition()
+      recognitionRef.current.continuous = true
+      recognitionRef.current.interimResults = true
+
+      recognitionRef.current.onresult = (event) => {
+        let interimTranscript = ''
+        let finalTranscript = ''
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript
+          } else {
+            interimTranscript += event.results[i][0].transcript
+          }
+        }
+
+        setSpeechRecognition(prev => ({
+          ...prev,
+          interimTranscript,
+          finalTranscript: prev.finalTranscript + finalTranscript
+        }))
+      }
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error', event.error)
+        setSpeechRecognition(prev => ({ ...prev, isListening: false }))
+        toast({
+          title: "Speech Recognition Error",
+          description: `Error: ${event.error}. Please try again.`,
+          variant: "destructive",
+        })
+      }
+
+      recognitionRef.current.onend = () => {
+        setSpeechRecognition(prev => ({ ...prev, isListening: false }))
+      }
+    } else {
+      console.log('Speech recognition not supported')
+      toast({
+        title: "Speech Recognition Not Supported",
+        description: "Your browser doesn't support speech recognition. Please try a different browser.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleSave = useCallback(async () => {
-    if (title === lastSavedRef.current.title && content === lastSavedRef.current.content) {
+    if (note.title === lastSavedRef.current.title && note.content === lastSavedRef.current.content) {
       return
     }
 
@@ -88,8 +151,7 @@ export default function NoteEditor({ userId }) {
     setError(null)
     try {
       const noteData = {
-        title,
-        content,
+        ...note,
         owner: userId,
         updated_at: new Date().toISOString(),
         isFavorite: false,
@@ -102,7 +164,7 @@ export default function NoteEditor({ userId }) {
         const newNote = await createDocument(NOTES_COLLECTION_ID, noteData)
         navigate(`/notes/${newNote.$id}`, { replace: true })
       }
-      lastSavedRef.current = { title, content }
+      lastSavedRef.current = { ...note }
       setSaveStatus('Saved')
       setTimeout(() => setSaveStatus(''), 3000)
     } catch (error) {
@@ -111,41 +173,30 @@ export default function NoteEditor({ userId }) {
     } finally {
       setLoading(false)
     }
-  }, [title, content, userId, noteId, navigate])
+  }, [note, userId, noteId, navigate])
 
-  const debouncedSave = useCallback(
-    debounce(handleSave, 3000),
-    [handleSave]
-  )
+  const debouncedSave = useCallback(debounce(handleSave, 3000), [handleSave])
 
   useEffect(() => {
-    if (title !== lastSavedRef.current.title || content !== lastSavedRef.current.content) {
+    if (note.title !== lastSavedRef.current.title || note.content !== lastSavedRef.current.content) {
       setSaveStatus('Saving...')
       debouncedSave()
     }
-    return () => {
-      debouncedSave.cancel()
-    }
-  }, [title, content, debouncedSave])
+    return () => debouncedSave.cancel()
+  }, [note, debouncedSave])
 
-  const updateTitle = useCallback((newTitle) => {
-    setUndoStack((prevStack) => [...prevStack, { title, content }])
+  const updateNote = useCallback((updates) => {
+    setUndoStack(prevStack => [...prevStack, note])
     setRedoStack([])
-    setTitle(newTitle)
-  }, [title, content])
-
-  const updateContent = useCallback((newContent) => {
-    setUndoStack((prevStack) => [...prevStack, { title, content }])
-    setRedoStack([])
-    setContent(newContent)
-  }, [title, content])
+    setNote(prevNote => ({ ...prevNote, ...updates }))
+  }, [note])
 
   const insertMarkdown = (markdownSymbol, placeholder = '') => {
     const textarea = editorRef.current
     const { selectionStart, selectionEnd } = textarea
-    const selectedText = content.substring(selectionStart, selectionEnd)
-    const newContent = `${content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${content.substring(selectionEnd)}`
-    updateContent(newContent)
+    const selectedText = note.content.substring(selectionStart, selectionEnd)
+    const newContent = `${note.content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${note.content.substring(selectionEnd)}`
+    updateNote({ content: newContent })
     textarea.focus()
     textarea.setSelectionRange(selectionStart + markdownSymbol.length, selectionEnd + markdownSymbol.length)
   }
@@ -153,10 +204,19 @@ export default function NoteEditor({ userId }) {
   const handleImproveContent = async () => {
     setLoading(true)
     try {
-      const improvedContent = await getContentImprovements(content)
-      updateContent(improvedContent)
+      const improvedContent = await getContentImprovements(note.content)
+      updateNote({ content: improvedContent })
+      toast({
+        title: "Content Improved",
+        description: "Your note content has been enhanced by AI.",
+      })
     } catch (error) {
       setError('Failed to improve content. Please try again.')
+      toast({
+        title: "Error",
+        description: "Failed to improve content. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -165,10 +225,19 @@ export default function NoteEditor({ userId }) {
   const handleGenerateTitle = async () => {
     setLoading(true)
     try {
-      const suggestedTitle = await generateTitleSuggestion(content)
-      updateTitle(suggestedTitle)
+      const suggestedTitle = await generateTitleSuggestion(note.content)
+      updateNote({ title: suggestedTitle })
+      toast({
+        title: "Title Generated",
+        description: "A new title has been generated for your note.",
+      })
     } catch (error) {
       setError('Failed to generate title. Please try again.')
+      toast({
+        title: "Error",
+        description: "Failed to generate title. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -187,9 +256,8 @@ export default function NoteEditor({ userId }) {
   const handleUndo = () => {
     if (undoStack.length > 0) {
       const previousState = undoStack[undoStack.length - 1]
-      setRedoStack([...redoStack, { title, content }])
-      setTitle(previousState.title)
-      setContent(previousState.content)
+      setRedoStack([...redoStack, note])
+      setNote(previousState)
       setUndoStack(undoStack.slice(0, -1))
     }
   }
@@ -197,9 +265,8 @@ export default function NoteEditor({ userId }) {
   const handleRedo = () => {
     if (redoStack.length > 0) {
       const nextState = redoStack[redoStack.length - 1]
-      setUndoStack([...undoStack, { title, content }])
-      setTitle(nextState.title)
-      setContent(nextState.content)
+      setUndoStack([...undoStack, note])
+      setNote(nextState)
       setRedoStack(redoStack.slice(0, -1))
     }
   }
@@ -207,10 +274,37 @@ export default function NoteEditor({ userId }) {
   const handleAlignment = (alignment) => {
     const textarea = editorRef.current
     const { selectionStart, selectionEnd } = textarea
-    const selectedText = content.substring(selectionStart, selectionEnd)
+    const selectedText = note.content.substring(selectionStart, selectionEnd)
     const alignedText = `<div style="text-align: ${alignment}">${selectedText}</div>`
-    const newContent = `${content.substring(0, selectionStart)}${alignedText}${content.substring(selectionEnd)}`
-    updateContent(newContent)
+    const newContent = `${note.content.substring(0, selectionStart)}${alignedText}${note.content.substring(selectionEnd)}`
+    updateNote({ content: newContent })
+  }
+
+  const toggleSpeechToText = () => {
+    if (!speechRecognition.isSupported) {
+      toast({
+        title: "Speech Recognition Not Supported",
+        description: "Your browser doesn't support speech recognition. Please try a different browser.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (speechRecognition.isListening) {
+      recognitionRef.current.stop()
+      setSpeechRecognition(prev => ({ ...prev, isListening: false }))
+      toast({
+        title: "Speech Recognition Stopped",
+        description: "Speech-to-text has been stopped.",
+      })
+    } else {
+      recognitionRef.current.start()
+      setSpeechRecognition(prev => ({ ...prev, isListening: true }))
+      toast({
+        title: "Speech Recognition Started",
+        description: "Start speaking. Your words will be transcribed into the note.",
+      })
+    }
   }
 
   const markdownButtons = [
@@ -245,8 +339,8 @@ export default function NoteEditor({ userId }) {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
               <Input
                 type="text"
-                value={title}
-                onChange={(e) => updateTitle(e.target.value)}
+                value={note.title}
+                onChange={(e)=> updateNote({ title: e.target.value })}
                 placeholder="Untitled Note"
                 className="text-xl sm:text-2xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0"
               />
@@ -352,14 +446,39 @@ export default function NoteEditor({ userId }) {
                   dangerouslySetInnerHTML={{ __html: preview }}
                 />
               ) : (
-                <Textarea
-                  ref={editorRef}
-                  value={content}
-                  onChange={(e) => updateContent(e.target.value)}
-                  placeholder="Start writing your note here..."
-                  className="min-h-[200px] sm:min-h-[300px] md:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
-                  style={{ fontSize: `${fontSize}px` }}
-                />
+                <div className="relative">
+                  <Textarea
+                    ref={editorRef}
+                    value={note.content}
+                    onChange={(e) => updateNote({ content: e.target.value })}
+                    placeholder="Start writing your note here..."
+                    className="min-h-[200px] sm:min-h-[300px] md:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
+                    style={{ fontSize: `${fontSize}px` }}
+                  />
+                  {speechRecognition.isListening && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute bottom-4 left-4 right-4 bg-blue-100 dark:bg-blue-900 p-2 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                          className="w-3 h-3 bg-blue-500 rounded-full"
+                        />
+                        <p className="text-sm text-blue-800 dark:text-blue-200">Listening...</p>
+                      </div>
+                      {speechRecognition.interimTranscript && (
+                        <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                          {speechRecognition.interimTranscript}
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
               )}
             </div>
 
@@ -377,14 +496,31 @@ export default function NoteEditor({ userId }) {
                 <span className="text-sm text-gray-500 dark:text-gray-400">{fontSize}px</span>
               </div>
               <div className="flex space-x-2">
-                <Button onClick={handleGenerateTitle} disabled={loading || !content} size="sm" variant="outline">
+                <Button onClick={handleGenerateTitle} disabled={loading || !note.content} size="sm" variant="outline">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generate Title
                 </Button>
-                <Button onClick={handleImproveContent} disabled={loading || !content} size="sm" variant="outline">
+                <Button onClick={handleImproveContent} disabled={loading || !note.content} size="sm" variant="outline">
                   <Sparkles className="h-4 w-4 mr-2" />
                   Improve
                 </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={toggleSpeechToText}
+                        size="sm"
+                        variant={speechRecognition.isListening ? "default" : "outline"}
+                        disabled={!speechRecognition.isSupported}
+                      >
+                        <Mic className={`h-4 w-4 ${speechRecognition.isListening ? 'text-white' : ''}`} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{speechRecognition.isListening ? 'Stop Listening' : 'Start Speech-to-Text'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
 
@@ -402,9 +538,9 @@ export default function NoteEditor({ userId }) {
         </Card>
 
         <NoteXAssistant
-          onInsert={(suggestion) => updateContent(content + suggestion)}
-          currentContent={content}
-          onUpdateTitle={updateTitle}
+          onInsert={(suggestion) => updateNote({ content: note.content + suggestion })}
+          currentContent={note.content}
+          onUpdateTitle={(newTitle) => updateNote({ title: newTitle })}
           isFullscreen={isFullscreen}
         />
       </motion.div>

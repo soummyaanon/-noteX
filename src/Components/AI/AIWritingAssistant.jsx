@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { Loader2, Wand2, Sparkles, AlertCircle, Clipboard, Send, Eraser, ArrowRight, FileText, Tags, Maximize, BookOpen, MessageSquare, Languages, GitBranch, BotMessageSquare  } from 'lucide-react';
+import { Loader2, Wand2, Sparkles, AlertCircle, Clipboard, Send, Eraser, ArrowRight, FileText, Tags, Maximize, BookOpen, MessageSquare, Languages, GitBranch, BotMessageSquare, Mic  } from 'lucide-react';
 import { getAISuggestion, getContentImprovements, generateTitleSuggestion, summarizeNote, suggestTags, expandNote, getContentRecommendations, analyzeSentiment, translateText, generateMindMap } from '../../Services/aiService';
 import { useToast } from "../ui/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
@@ -36,9 +36,17 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
   const [activeTab, setActiveTab] = useState('generate');
   const [targetLanguage, setTargetLanguage] = useState('');
   const [isBotExpanded, setIsBotExpanded] = useState(false);
+  const [speechRecognition, setSpeechRecognition] = useState({
+    isListening: false,
+    transcript: '',
+    isSupported: false,
+    interimTranscript: '',
+    finalTranscript: '',
+  });
   const { toast } = useToast();
   const botRef = useRef(null);
   const dragControls = useDragControls();
+  const recognitionRef = useRef(null);
 
   const actions = {
     suggest: { fn: getAISuggestion, arg: prompt, label: 'Generate Outline', icon: Wand2, needsPrompt: true },
@@ -52,6 +60,94 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
     translateText: { fn: translateText, arg: currentContent, label: 'Translate', icon: Languages, needsLanguage: true },
     generateMindMap: { fn: generateMindMap, arg: currentContent, label: 'Generate Mind Map', icon: GitBranch },
   };
+
+  useEffect(() => {
+    initializeSpeechRecognition();
+  }, []);
+
+  const initializeSpeechRecognition = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      setSpeechRecognition(prev => ({ ...prev, isSupported: true }));
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+
+      recognitionRef.current.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        setSpeechRecognition(prev => ({
+          ...prev,
+          interimTranscript,
+          finalTranscript: prev.finalTranscript + finalTranscript
+        }));
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setSpeechRecognition(prev => ({ ...prev, isListening: false }));
+        toast({
+          title: "Speech Recognition Error",
+          description: `Error: ${event.error}. Please try again.`,
+          variant: "destructive",
+        });
+      };
+
+      recognitionRef.current.onend = () => {
+        setSpeechRecognition(prev => ({ ...prev, isListening: false }));
+      };
+    } else {
+      console.log('Speech recognition not supported');
+      toast({
+        title: "Speech Recognition Not Supported",
+        description: "Your browser doesn't support speech recognition. Please try a different browser.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleSpeechToText = () => {
+    if (!speechRecognition.isSupported) {
+      toast({
+        title: "Speech Recognition Not Supported",
+        description: "Your browser doesn't support speech recognition. Please try a different browser.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (speechRecognition.isListening) {
+      recognitionRef.current.stop();
+      setSpeechRecognition(prev => ({ ...prev, isListening: false }));
+      toast({
+        title: "Speech Recognition Stopped",
+        description: "Speech-to-text conversion has been stopped.",
+      });
+    } else {
+      recognitionRef.current.start();
+      setSpeechRecognition(prev => ({ ...prev, isListening: true }));
+      toast({
+        title: "Speech Recognition Started",
+        description: "Start speaking. Your words will be transcribed into the prompt.",
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (speechRecognition.finalTranscript) {
+      setPrompt(prev => prev + ' ' + speechRecognition.finalTranscript);
+      setSpeechRecognition(prev => ({ ...prev, finalTranscript: '' }));
+    }
+  }, [speechRecognition.finalTranscript]);
 
   const handleAction = useCallback(async (actionKey) => {
     const action = actions[actionKey];
@@ -134,41 +230,41 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-<motion.div
-  className="cursor-pointer"
-  onClick={() => setIsBotExpanded(!isBotExpanded)}
-  whileHover={{
-    scale: 1.05,
-    boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.15)',
-    background: 'linear-gradient(135deg, #66a6ff 0%, #89f7fe 100%)',
-    transition: {
-      duration: 0.3,
-      ease: 'easeInOut'
-    }
-  }}
-  whileTap={{
-    scale: 0.95,
-    boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
-    transition: {
-      duration: 0.2,
-      ease: 'easeInOut'
-    }
-  }}
-  style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100px',
-    height: '100px',
-    borderRadius: '50%',
-    background: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
-    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
-  }}
->
-  <ShimmerButton>
-    <BotMessageSquare size={80} className="text-white" />
-  </ShimmerButton>
-</motion.div>
+            <motion.div
+              className="cursor-pointer"
+              onClick={() => setIsBotExpanded(!isBotExpanded)}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: '0px 8px 20px rgba(0, 0, 0, 0.15)',
+                background: 'linear-gradient(135deg, #66a6ff 0%, #89f7fe 100%)',
+                transition: {
+                  duration: 0.3,
+                  ease: 'easeInOut'
+                }
+              }}
+              whileTap={{
+                scale: 0.95,
+                boxShadow: '0px 2px 10px rgba(0, 0, 0, 0.1)',
+                transition: {
+                  duration: 0.2,
+                  ease: 'easeInOut'
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <ShimmerButton>
+                <BotMessageSquare size={80} className="text-white" />
+              </ShimmerButton>
+            </motion.div>
           </TooltipTrigger>
           <TooltipContent>
             <p> noteX Bot </p>
@@ -205,12 +301,26 @@ export default function AIWritingAssistant({ onInsert, currentContent, onUpdateT
                   <AnimatePresence mode="wait">
                     <motion.div key={activeTab} {...fadeInOut}>
                       <TabsContent value="generate" className="space-y-4">
-                        <Textarea
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                          placeholder="Enter a prompt for AI assistance"
-                          className="bg-gray-700 text-white min-h-[100px] resize-y"
-                        />
+                        <div className="relative">
+                          <Textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Enter a prompt for AI assistance"
+                            className="bg-gray-700 text-white min-h-[100px] resize-y pr-10"
+                          />
+                          <Button
+                            onClick={toggleSpeechToText}
+                            className="absolute right-2 top-2 bg-transparent hover:bg-gray-600"
+                            size="sm"
+                          >
+                            <Mic className={`h-4 w-4 ${speechRecognition.isListening ? 'text-red-500 animate-pulse' : 'text-gray-400'}`} />
+                          </Button>
+                        </div>
+                        {speechRecognition.isListening && (
+                          <div className="text-sm text-gray-400 italic">
+                            {speechRecognition.interimTranscript}
+                          </div>
+                        )}
                         <div className="flex justify-end space-x-2">
                           <TooltipProvider>
                             <Tooltip>
