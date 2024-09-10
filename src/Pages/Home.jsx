@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../Compone
 import { Pencil, Bot, Lock, Share2, Zap, FileText, Search, Mic } from 'lucide-react';
 import { cn } from "../lib/utils";
 import { motion, AnimatePresence } from 'framer-motion';
-import AuroraBackground from "../Components/ui/aurora-background";
+import AuroraBackground from '../Components/ui/aurora-background';
 import { FlipWords } from "../Components/ui/flip-words";
 import { getCurrentUser } from '../Services/appwrite';
 import { Cover } from "../Components/ui/cover";
@@ -177,7 +177,7 @@ export default function HomePage() {
   ), [handleNavigation]);
 
   return (
-    <AuroraBackground>
+    <AuroraBackground class= "z-10" >
       <AnimatePresence>
         {authState.isLoading ? (
           <motion.div
@@ -218,9 +218,8 @@ export default function HomePage() {
                   <p className="text-sm text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
               </Card>
-              <div className="mt-8">
+              <div className="mt-2">
               <GoogleGeminiEffectDemo />
-
                 <InfiniteMovingCardsDemo />
               </div>
             </div>
