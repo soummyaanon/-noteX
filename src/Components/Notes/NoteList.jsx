@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { listDocuments, toggleNoteFavorite, getCurrentUser } from '../../Services/appwrite';
+import { Link, useNavigate, Routes, Route } from 'react-router-dom';
+import { listDocuments, toggleNoteFavorite, getCurrentUser, deleteDocument } from '../../Services/appwrite';
 import { Query } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2, Pencil, MoreVertical } from "lucide-react";
+import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Input } from "../ui/input";
@@ -16,7 +16,9 @@ import { Badge } from "../ui/badge"
 import { Skeleton } from "../ui/skeleton"
 import { toast } from "../ui/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import NoteView from './NoteView';
 
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 
@@ -61,7 +63,6 @@ const NoteList = ({ userId }) => {
         setIsLoading(false);
       }
     };
-    fetchNotes();
 
     const loadModel = async () => {
       try {
@@ -72,6 +73,8 @@ const NoteList = ({ userId }) => {
         setError('Failed to load search model. Semantic search may not work.');
       }
     };
+
+    fetchNotes();
     loadModel();
     fetchUserData();
   }, [userId, fetchUserData]);
@@ -176,6 +179,24 @@ const NoteList = ({ userId }) => {
     navigate(`/edit-note/${noteId}`);
   };
 
+  const handleDelete = async (noteId) => {
+    try {
+      await deleteDocument(NOTES_COLLECTION_ID, noteId);
+      setNotes(prevNotes => prevNotes.filter(note => note.$id !== noteId));
+      toast({
+        title: "Note deleted",
+        description: "The note has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast({
+        title: "Deletion failed",
+        description: "There was an error while deleting the note.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (error) return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardContent className="pt-6">
@@ -193,7 +214,7 @@ const NoteList = ({ userId }) => {
     >
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 w-full h-full">
         <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
             {authState.isLoggedIn ? `${authState.userName}'s Notes` : "Your Notes"}
           </CardTitle>
         </CardHeader>
@@ -222,7 +243,7 @@ const NoteList = ({ userId }) => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4 sm:mb-6">
-            <div className="relative w-full sm:w-2/3">
+            <div className="relative w-full">
               <Input
                 type="text"
                 placeholder="Search notes..."
@@ -281,32 +302,39 @@ const NoteList = ({ userId }) => {
               </motion.div>
             )}
           </AnimatePresence>
-          <Tabs defaultValue="all" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="all">All Notes</TabsTrigger>
-              <TabsTrigger value="favorites">Favorites</TabsTrigger>
-            </TabsList>
-            <TabsContent value="all">
-              <NoteGrid 
-                notes={sortedNotes} 
-                isLoading={isLoading} 
-                handleToggleFavorite={handleToggleFavorite} 
-                handleShare={handleShare} 
-                handleEdit={handleEdit}
-                searchQuery={searchQuery} 
-              />
-            </TabsContent>
-            <TabsContent value="favorites">
-              <NoteGrid 
-                notes={sortedNotes.filter(note => note.isFavorite)} 
-                isLoading={isLoading} 
-                handleToggleFavorite={handleToggleFavorite} 
-                handleShare={handleShare} 
-                handleEdit={handleEdit}
-                searchQuery={searchQuery} 
-              />
-            </TabsContent>
-          </Tabs>
+          <Routes>
+            <Route path="/" element={
+              <Tabs defaultValue="all" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="all">All Notes</TabsTrigger>
+                  <TabsTrigger value="favorites">Favorites</TabsTrigger>
+                </TabsList>
+                <TabsContent value="all">
+                  <NoteGrid 
+                    notes={sortedNotes} 
+                    isLoading={isLoading} 
+                    handleToggleFavorite={handleToggleFavorite} 
+                    handleShare={handleShare} 
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
+                    searchQuery={searchQuery} 
+                  />
+                </TabsContent>
+                <TabsContent value="favorites">
+                  <NoteGrid 
+                    notes={sortedNotes.filter(note => note.isFavorite)} 
+                    isLoading={isLoading} 
+                    handleToggleFavorite={handleToggleFavorite} 
+                    handleShare={handleShare} 
+                    handleEdit={handleEdit}
+                    handleDelete={handleDelete}
+                    searchQuery={searchQuery} 
+                  />
+                </TabsContent>
+              </Tabs>
+            } />
+            <Route path=":noteId" element={<NoteView />} />
+          </Routes>
         </CardContent>
         <CardFooter>
           <p className="text-xs sm:text-sm text-muted-foreground">Total notes: {notes.length}</p>
@@ -316,7 +344,7 @@ const NoteList = ({ userId }) => {
   );
 };
 
-const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleEdit, searchQuery }) => {
+const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleEdit, handleDelete, searchQuery }) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -339,7 +367,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
   }
 
   return (
-    <ScrollArea className="h-[calc(100vh-20rem)] sm:h-[calc(100vh-22rem)] md:h-[calc(100vh-24rem)] lg:h-[calc(100vh-26rem)]">
+    <ScrollArea className="h-[calc(100vh-20rem)] sm:h-[calc(100vh-22rem)] md:h-[calc(100vh-24rem)]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {notes.map(note => (
           <motion.div
@@ -353,7 +381,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
                 <div className="flex items-start justify-between mb-2">
                   <Link to={`/notes/${note.$id}`} className="flex items-center">
                     <FileText className="mr-2 h-4 w-4" />
-                    <span className="text-base sm:text-lg font-semibold line-clamp-1">{note.title}</span>
+                    <span className="text-lg sm:text-xl font-semibold line-clamp-1">{note.title}</span>
                   </Link>
                   <div className="flex items-center">
                     <TooltipProvider>
@@ -386,6 +414,26 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
                         <DropdownMenuItem onClick={() => handleShare(note)}>
                           <Share2 className="mr-2 h-4 w-4" />
                           Share
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="w-full justify-start">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete this note?</AlertDialogTitle>
+                                <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(note.$id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
