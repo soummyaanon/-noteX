@@ -22,6 +22,7 @@ import {
 } from "../ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Slider } from "../ui/slider"
+import { Switch } from "../ui/switch"
 import debounce from 'lodash.debounce'
 import NoteXAssistant from '../AI/AIWritingAssistant'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -51,6 +52,7 @@ export default function NoteEditor({ userId }) {
     interimTranscript: '',
     finalTranscript: '',
   })
+  const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(false)
   
   const editorRef = useRef(null)
   const fullscreenRef = useRef(null)
@@ -140,7 +142,6 @@ export default function NoteEditor({ userId }) {
       })
     }
   }
-
   const handleSave = useCallback(async () => {
     if (note.title === lastSavedRef.current.title && note.content === lastSavedRef.current.content) {
       return
@@ -178,12 +179,12 @@ export default function NoteEditor({ userId }) {
   const debouncedSave = useCallback(debounce(handleSave, 3000), [handleSave])
 
   useEffect(() => {
-    if (note.title !== lastSavedRef.current.title || note.content !== lastSavedRef.current.content) {
+    if (isAutoSaveEnabled && (note.title !== lastSavedRef.current.title || note.content !== lastSavedRef.current.content)) {
       setSaveStatus('Saving...')
       debouncedSave()
     }
     return () => debouncedSave.cancel()
-  }, [note, debouncedSave])
+  }, [note, debouncedSave, isAutoSaveEnabled])
 
   const updateNote = useCallback((updates) => {
     setUndoStack(prevStack => [...prevStack, note])
@@ -307,7 +308,7 @@ export default function NoteEditor({ userId }) {
     }
   }
 
-  const markdownButtons = [
+const markdownButtons = [
     { icon: Bold, action: () => insertMarkdown('**', 'bold text'), tooltip: 'Bold' },
     { icon: Italic, action: () => insertMarkdown('*', 'italic text'), tooltip: 'Italic' },
     { icon: Heading1, action: () => insertMarkdown('# ', 'Heading 1'), tooltip: 'Heading 1' },
@@ -340,7 +341,7 @@ export default function NoteEditor({ userId }) {
               <Input
                 type="text"
                 value={note.title}
-                onChange={(e)=> updateNote({ title: e.target.value })}
+                onChange={(e) => updateNote({ title: e.target.value })}
                 placeholder="Untitled Note"
                 className="text-xl sm:text-2xl font-bold border-none focus:ring-0 p-0 bg-transparent flex-grow mr-2 mb-2 sm:mb-0"
               />
@@ -425,6 +426,31 @@ export default function NoteEditor({ userId }) {
                     <Button onClick={handleRedo} disabled={redoStack.length === 0} size="sm" variant="ghost">
                       <Redo className="h-4 w-4" />
                     </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center space-x-2 bg-blue-100 dark:bg-gray-500 px-2 py-1 rounded-2xl">
+                            <Switch
+                              id="auto-save"
+                              checked={isAutoSaveEnabled}
+                              onCheckedChange={setIsAutoSaveEnabled}
+                            />
+                            <label htmlFor="auto-save" className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                              Auto-save
+                            </label>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{isAutoSaveEnabled ? 'Disable auto-save' : 'Enable auto-save'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    {!isAutoSaveEnabled && (
+                      <Button onClick={handleSave} disabled={loading} size="sm" variant="outline">
+                        <Save className="h-4 w-4 mr-2" />
+                        Save
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}

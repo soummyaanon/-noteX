@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { listDocuments, toggleNoteFavorite } from '../../Services/appwrite';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { listDocuments, toggleNoteFavorite, getCurrentUser } from '../../Services/appwrite';
 import { Query } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2 } from "lucide-react";
+import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2, Pencil, MoreVertical } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Input } from "../ui/input";
@@ -15,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Badge } from "../ui/badge"
 import { Skeleton } from "../ui/skeleton"
 import { toast } from "../ui/use-toast"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 
@@ -28,6 +30,21 @@ const NoteList = ({ userId }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [showVisualization, setShowVisualization] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [authState, setAuthState] = useState({ isLoggedIn: false, userName: '' });
+
+  const navigate = useNavigate();
+
+  const fetchUserData = useCallback(async () => {
+    try {
+      const user = await getCurrentUser();
+      setAuthState({
+        isLoggedIn: !!user,
+        userName: user ? user.name : '',
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -56,9 +73,10 @@ const NoteList = ({ userId }) => {
       }
     };
     loadModel();
-  }, [userId]);
+    fetchUserData();
+  }, [userId, fetchUserData]);
 
-  const performSemanticSearch = async () => {
+  const performSemanticSearch = useCallback(async () => {
     if (!model || !searchQuery) return;
 
     setIsSearching(true);
@@ -86,7 +104,7 @@ const NoteList = ({ userId }) => {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [model, searchQuery, notes]);
 
   const handleToggleFavorite = async (noteId) => {
     try {
@@ -154,6 +172,10 @@ const NoteList = ({ userId }) => {
     }
   };
 
+  const handleEdit = (noteId) => {
+    navigate(`/edit-note/${noteId}`);
+  };
+
   if (error) return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardContent className="pt-6">
@@ -171,7 +193,9 @@ const NoteList = ({ userId }) => {
     >
       <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 w-full h-full">
         <CardHeader>
-          <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Your Notes</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
+            {authState.isLoggedIn ? `${authState.userName}'s Notes` : "Your Notes"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
@@ -198,7 +222,7 @@ const NoteList = ({ userId }) => {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4 sm:mb-6">
-            <div className="relative w-full">
+            <div className="relative w-full sm:w-2/3">
               <Input
                 type="text"
                 placeholder="Search notes..."
@@ -263,10 +287,24 @@ const NoteList = ({ userId }) => {
               <TabsTrigger value="favorites">Favorites</TabsTrigger>
             </TabsList>
             <TabsContent value="all">
-              <NoteGrid notes={sortedNotes} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} handleShare={handleShare} searchQuery={searchQuery} />
+              <NoteGrid 
+                notes={sortedNotes} 
+                isLoading={isLoading} 
+                handleToggleFavorite={handleToggleFavorite} 
+                handleShare={handleShare} 
+                handleEdit={handleEdit}
+                searchQuery={searchQuery} 
+              />
             </TabsContent>
             <TabsContent value="favorites">
-              <NoteGrid notes={sortedNotes.filter(note => note.isFavorite)} isLoading={isLoading} handleToggleFavorite={handleToggleFavorite} handleShare={handleShare} searchQuery={searchQuery} />
+              <NoteGrid 
+                notes={sortedNotes.filter(note => note.isFavorite)} 
+                isLoading={isLoading} 
+                handleToggleFavorite={handleToggleFavorite} 
+                handleShare={handleShare} 
+                handleEdit={handleEdit}
+                searchQuery={searchQuery} 
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -278,7 +316,7 @@ const NoteList = ({ userId }) => {
   );
 };
 
-const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, searchQuery }) => {
+const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleEdit, searchQuery }) => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -301,7 +339,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, searchQ
   }
 
   return (
-    <ScrollArea className="h-[60vh] sm:h-[50vh] md:h-[60vh]">
+    <ScrollArea className="h-[calc(100vh-20rem)] sm:h-[calc(100vh-22rem)] md:h-[calc(100vh-24rem)] lg:h-[calc(100vh-26rem)]">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {notes.map(note => (
           <motion.div
@@ -315,23 +353,42 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, searchQ
                 <div className="flex items-start justify-between mb-2">
                   <Link to={`/notes/${note.$id}`} className="flex items-center">
                     <FileText className="mr-2 h-4 w-4" />
-                    <span className="text-lg sm:text-xl font-semibold line-clamp-1">{note.title}</span>
+                    <span className="text-base sm:text-lg font-semibold line-clamp-1">{note.title}</span>
                   </Link>
                   <div className="flex items-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleToggleFavorite(note.$id)}
-                    >
-                      <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleShare(note)}
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleFavorite(note.$id)}
+                          >
+                            <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {note.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(note.$id)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleShare(note)}>
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Share
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground mb-2">

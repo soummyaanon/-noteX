@@ -14,7 +14,7 @@ import InfiniteMovingCardsDemo from "../Components/ui/ReviewCard";
 import GoogleGeminiEffectDemo from "../Components/ui/Geminie";
 
 const FeatureIcon = React.memo(({ Icon }) => (
-  <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
+  <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
 ));
 
 const features = [
@@ -63,7 +63,7 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
         <FeatureIcon Icon={feature.Icon} />
       </div>
       <div>
-        <h3 className="font-semibold text-sm text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
+        <h3 className="font-semibold text-xs text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
         <p className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
@@ -122,7 +122,7 @@ export default function HomePage() {
         transition={{ delay: 0.6 }}
         className="text-center"
       >
-        <h2 className="text-2xl font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
+        <h2 className="text-xl font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
         <p className="text-lg text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
@@ -161,7 +161,7 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-xl text-center text-gray-200 max-w-2xl">
+        <p className="text-lg text-center text-gray-200 max-w-2xl">
           Experience the future of note-taking with AI-powered insights and the noteX Assistance Bot.
         </p>
         <Button
@@ -177,7 +177,7 @@ export default function HomePage() {
   ), [handleNavigation]);
 
   return (
-    <AuroraBackground class="z-0">
+    <AuroraBackground class = "z-auto" >
       <AnimatePresence>
         {authState.isLoading ? (
           <motion.div
@@ -200,20 +200,21 @@ export default function HomePage() {
             <div className="w-full max-w-7xl">
               <Card className={cn("w-full bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
                 <CardHeader className="pb-6">
-                  <CardTitle className="text-3xl md:text-4xl lg:text-5xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                  <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
                     <Cover>
                       {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                     </Cover>
                   </CardTitle>
-                  <FlipWords
-                    words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
-                    duration={3000}
-                    className="text-lg md:text-xl lg:text-2xl font-light text-center mt-4 text-gray-200 font-Orbitron"
-                  />
+
                 </CardHeader>
                 <CardContent className="px-4 sm:px-6 md:px-8 lg:px-12">
                   {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
                 </CardContent>
+                <FlipWords
+                    words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
+                    duration={3000}
+                    className="text-sm md:text-base lg:text-lg font-light text-center mt-12 text-gray-200 font-Orbitron"
+                  />
                 <CardFooter className="justify-center mt-6 text-center px-4">
                   <p className="text-sm md:text-base text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
