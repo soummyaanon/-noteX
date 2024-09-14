@@ -61,7 +61,7 @@ const About = () => {
                   <SocialLink href="https://drive.google.com/file/d/1tO0jIv9wThvdWw6v-ANUkygzPX9HdsJJ/view?usp=share_link" icon={<FaFileAlt />} label="Resume" />
                 </div>
                 <a
-                  href="https://www.discord.com/soumyapanda2000" 
+                  href="https://discord.gg/wvmnHCHM" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl"
