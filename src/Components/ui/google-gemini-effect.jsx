@@ -21,7 +21,7 @@ export const GoogleGeminiEffect = ({
         {title || `Powered by Google Gemini Pro`}
       </p>
       <p
-        className="text-xs md:text-xl font-normal text-center text-neutral-600 dark:text-neutral-400 mt-4 max-w-lg mx-auto">
+        className="text-xs md:text-xl font-Orbitron text-center text-neutral-600 dark:text-neutral-400 mt-4 max-w-lg mx-auto">
         {description ||
           `Experience the power of AI-powered note-taking with noteX`}
       </p>
