@@ -19,6 +19,13 @@ const About = () => {
       href: 'https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2',
       image: 'https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=dark'
     },
+    {
+      name: 'Top Free AI Tools',
+      href: 'https://topfreeaitools.com/ai/notex',
+      image: 'https://ff65dcf08ebd5eb1c022b44dd88016ac.cdn.bubble.io/f1724746111294x515859147102912600/badge%20black.png?_gl=1*1w65k5q*_gcl_au*MTg3MzI0ODMyLjE3MjE2MjAzNjA.*_ga*NTIyODE4MzEyLjE3MDU5OTg0MTc.*_ga_BFPVR2DEE2*MTcyNDc0NTM2OS4yMjkuMS4xNzI0NzQ2ODQ2LjYuMC4w',
+      width: 230,
+      height: 54
+    }
   ];
 
   return (
@@ -52,7 +59,7 @@ const About = () => {
               />
               <div className="flex flex-col items-center sm:items-start">
                 <h3 className="text-2xl font-bold font-Orbitron mb-2">Soumyaranjan Panda</h3>
-                <p className="text-gray-600  dark:text-gray-400 mb-4 font-semibold font-Orbitron   ">Fullstack Developer / Tech Enthusiast</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4 font-semibold font-Orbitron">Fullstack Developer / Tech Enthusiast</p>
                 <div className="flex space-x-4 mb-6">
                   <SocialLink href="https://github.com/soummyaanon" icon={<FaGithub />} label="GitHub" />
                   <SocialLink href="https://www.linkedin.com/in/soumyaranjan-panda-33496a179/" icon={<FaLinkedin />} label="LinkedIn" />
@@ -66,11 +73,10 @@ const About = () => {
                   rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl"
                 >
-                  <FaDiscord className="mr-2  " />
-                  <p className='font-thin text-sm font-Orbitron' >
-                  Contact Me on Discord
+                  <FaDiscord className="mr-2" />
+                  <p className='font-thin text-sm font-Orbitron'>
+                    Contact Me on Discord
                   </p>
-              
                 </a>
               </div>
             </div>
@@ -97,6 +103,8 @@ const About = () => {
                   <img 
                     src={platform.image} 
                     alt={`${platform.name} - Discover the power of AI-powered note-taking with noteX`} 
+                    width={platform.width}
+                    height={platform.height}
                     className="h-14"
                   />
                 </a>
