@@ -63,8 +63,8 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
         <FeatureIcon Icon={feature.Icon} />
       </div>
       <div>
-        <h3 className="font-semibold text-xs text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
-        <p className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
+        <h3 className="font-semibold font-Orbitron text-xs text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
+        <p className="text-xs font-Orbitron text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
   </motion.div>
@@ -123,7 +123,7 @@ export default function HomePage() {
         className="text-center"
       >
         <h2 className="text-xl font-Orbitron font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
-        <p className="text-lg text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
+        <p className="text-sm font-semibold font-Orbitron text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
           size="lg"
