@@ -30,7 +30,7 @@ const About = () => {
           variants={sectionVariants}
           className="max-w-3xl mx-auto"
         >
-          <h1 className="text-4xl font-bold mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">About NoteX</h1>
+          <h1 className="text-4xl font-bold font-Orbitron mb-6 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">About NoteX</h1>
           <div className="text-center text-lg">
             <TextGenerateEffectDemo />
           </div>
@@ -42,7 +42,7 @@ const About = () => {
           variants={sectionVariants}
           className="max-w-3xl mx-auto"
         >
-          <h2 className="text-3xl font-bold mb-6 text-center">Meet the Creator</h2>
+          <h2 className="text-3xl font-bold mb-6 font-Orbitron text-center">Meet the Creator</h2>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
               <img
@@ -51,8 +51,8 @@ const About = () => {
                 className="w-40 h-40 rounded-full border-4 border-blue-500 shadow-lg"
               />
               <div className="flex flex-col items-center sm:items-start">
-                <h3 className="text-2xl font-bold mb-2">Soumyaranjan Panda</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Fullstack Developer / Tech Enthusiast</p>
+                <h3 className="text-2xl font-bold font-Orbitron mb-2">Soumyaranjan Panda</h3>
+                <p className="text-gray-600  dark:text-gray-400 mb-4 font-semibold font-Orbitron   ">Fullstack Developer / Tech Enthusiast</p>
                 <div className="flex space-x-4 mb-6">
                   <SocialLink href="https://github.com/soummyaanon" icon={<FaGithub />} label="GitHub" />
                   <SocialLink href="https://www.linkedin.com/in/soumyaranjan-panda-33496a179/" icon={<FaLinkedin />} label="LinkedIn" />
@@ -66,8 +66,11 @@ const About = () => {
                   rel="noopener noreferrer"
                   className="bg-blue-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105 flex items-center shadow-lg hover:shadow-xl"
                 >
-                  <FaDiscord className="mr-2" />
+                  <FaDiscord className="mr-2  " />
+                  <p className='font-thin text-sm font-Orbitron' >
                   Contact Me on Discord
+                  </p>
+              
                 </a>
               </div>
             </div>
@@ -80,7 +83,7 @@ const About = () => {
           variants={sectionVariants}
           className="max-w-3xl mx-auto"
         >
-          <h2 className="text-3xl font-bold mb-6 text-center">Featured On</h2>
+          <h2 className="text-3xl font-bold font-Orbitron mb-6 text-center">Featured On</h2>
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
             <div className="flex flex-wrap justify-center gap-6">
               {featuredPlatforms.map((platform, index) => (
