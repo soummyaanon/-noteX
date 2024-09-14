@@ -12,7 +12,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import { motion } from 'framer-motion'
 import { Loader2, Camera, User, Settings, Mail, Phone, Edit2, Upload, RefreshCw } from 'lucide-react'
 
 const DICEBEAR_API_URL = 'https://api.dicebear.com/6.x'
@@ -35,9 +34,12 @@ export default function UserProfile() {
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [cartoonAvatars, setCartoonAvatars] = useState([])
   const [selectedStyle, setSelectedStyle] = useState(AVATAR_STYLES[0])
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
   const fetchUserData = useCallback(async () => {
+    setIsLoading(true)
+    setError(null)
     try {
       const currentUser = await getCurrentUser()
       if (!currentUser) throw new Error('No user found')
@@ -56,7 +58,7 @@ export default function UserProfile() {
       setProfileData(userData)
       setOriginalData(userData)
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      setError(error.message)
     } finally {
       setIsLoading(false)
     }
@@ -67,7 +69,7 @@ export default function UserProfile() {
   }, [fetchUserData])
 
   const generateCartoonAvatars = useCallback(() => {
-    const newAvatars = Array.from({ length: 8 }, (_, i) => 
+    const newAvatars = Array.from({ length: 8 }, () => 
       `${DICEBEAR_API_URL}/${selectedStyle}/png?size=200&seed=${Math.random()}`
     )
     setCartoonAvatars(newAvatars)
@@ -84,6 +86,7 @@ export default function UserProfile() {
 
   const handleAvatarSelect = async (avatarUrl) => {
     setIsSaving(true)
+    setError(null)
     try {
       if (profileData.profileImageId) {
         await deleteProfileImage(profileData.profileImageId)
@@ -108,10 +111,8 @@ export default function UserProfile() {
       setOriginalData(updatedProfileData)
 
       setIsAvatarDialogOpen(false)
-      alert('Avatar updated successfully!')
     } catch (error) {
-      console.error('Error updating avatar:', error)
-      alert('Failed to update avatar. Please try again.')
+      setError('Failed to update avatar. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -122,6 +123,7 @@ export default function UserProfile() {
     if (!file) return
 
     setIsSaving(true)
+    setError(null)
     try {
       if (profileData.profileImageId) {
         await deleteProfileImage(profileData.profileImageId)
@@ -142,10 +144,8 @@ export default function UserProfile() {
       setOriginalData(updatedProfileData)
 
       setIsAvatarDialogOpen(false)
-      alert('Profile image updated successfully!')
     } catch (error) {
-      console.error('Error uploading image:', error)
-      alert('Failed to upload image. Please try again.')
+      setError('Failed to upload image. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -154,13 +154,12 @@ export default function UserProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSaving(true)
+    setError(null)
     try {
       await updateUserProfile(user.$id, profileData)
       setOriginalData(profileData)
-      alert('Profile updated successfully!')
     } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Failed to update profile. Please try again.')
+      setError('Failed to update profile. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -168,16 +167,16 @@ export default function UserProfile() {
 
   const handleDeleteAccount = async () => {
     setIsSaving(true)
+    setError(null)
     try {
       await deleteUserAccount()
       navigate('/login')
     } catch (error) {
-      console.error('Error deleting account:', error)
       if (error.message.includes("Invalid query: Attribute not found in schema: userId")) {
-        alert('There was an issue deleting your notes, but your account has been deleted. Please contact support if you continue to see your account.')
+        setError('There was an issue deleting your notes, but your account has been deleted. Please contact support if you continue to see your account.')
         navigate('/login')
       } else {
-        alert('Failed to delete account. Please try again or contact support.')
+        setError('Failed to delete account. Please try again or contact support.')
       }
     } finally {
       setIsSaving(false)
@@ -195,193 +194,192 @@ export default function UserProfile() {
     return profileData.name !== originalData.name || profileData.username !== originalData.username
   }, [profileData, originalData])
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    )
+  if (error) {
+    return <div className="text-red-500 text-center mt-8">Error: {error}</div>
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8"
-    >
-      <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div>
-            <CardTitle className="text-3xl font-bold">User Profile</CardTitle>
-            <CardDescription>Manage your account information and settings</CardDescription>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="w-full max-w-4xl mx-auto relative">
+        {isLoading ? (
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" className="w-full justify-start">
-                    <User className="mr-2 h-4 w-4" />
-                    Delete Account
+        ) : (
+          <>
+            <CardHeader className="text-center relative pb-2">
+              <CardTitle className="text-3xl font-bold">User Profile</CardTitle>
+              <CardDescription>Manage your account information and settings</CardDescription>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="icon" className="absolute top-4 right-4">
+                    <Settings className="h-5 w-5" />
                   </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account,
-                      all your notes, and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700">
-                      {isSaving ? 'Deleting...' : 'Yes, delete my account'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </PopoverContent>
-          </Popover>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-shrink-0">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Avatar className="h-40 w-40 mx-auto">
-                  <AvatarImage 
-                    src={profileData.profileImageUrl} 
-                    alt={profileData.name} 
-                    onError={(e) => e.target.src = 'https://via.placeholder.com/150'} // Fallback image
-                  />
-                  <AvatarFallback>{profileData.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-              </motion.div>
-              <div className="mt-4 text-center">
-                <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">
-                      <Camera className="mr-2 h-4 w-4" />
-                      Change Avatar
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                      <DialogTitle>Choose an Avatar</DialogTitle>
-                      <DialogDescription>
-                        Select a cartoon avatar or upload your own image.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid grid-cols-4 gap-4 py-4">
-                      {cartoonAvatars.map((avatar, index) => (
-                        <motion.div
-                          key={index}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="cursor-pointer"
-                          onClick={() => handleAvatarSelect(avatar)}
-                        >
-                          <Avatar className="h-20 w-20 mx-auto">
-                            <AvatarImage src={avatar} alt={`Cartoon Avatar ${index + 1}`} />
-                          </Avatar>
-                        </motion.div>
-                      ))}
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <select
-                        value={selectedStyle}
-                        onChange={(e) => setSelectedStyle(e.target.value)}
-                        className="px-2 py-1 border rounded"
-                      >
-                        {AVATAR_STYLES.map((style) => (
-                          <option key={style} value={style}>
-                            {style}
-                          </option>
-                        ))}
-                      </select>
-                      <Button onClick={generateCartoonAvatars} variant="outline">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Refresh Avatars
+                </PopoverTrigger>
+                <PopoverContent className="w-56">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="w-full justify-start">
+                        <User className="mr-2 h-4 w-4" />
+                        Delete Account
                       </Button>
-                    </div>
-                    <div className="flex justify-center mt-4">
-                      <Label htmlFor="custom-avatar" className="cursor-pointer">
-                        <div className="flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg hover:bg-secondary">
-                          <Upload className="mr-2 h-6 w-6" />
-                          <span>Upload custom image</span>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete your account,
+                          all your notes, and remove your data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700">
+                          {isSaving ? 'Deleting...' : 'Yes, delete my account'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </PopoverContent>
+              </Popover>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+                <div className="flex-shrink-0 w-full md:w-auto text-center">
+                  <div className="relative">
+                    <Avatar className="h-40 w-40 mx-auto">
+                      <AvatarImage 
+                        src={profileData.profileImageUrl} 
+                        alt={profileData.name} 
+                        onError={(e) => {
+                          e.target.onerror = null
+                          e.target.src = `${DICEBEAR_API_URL}/initials/svg?seed=${profileData.name}`
+                        }}
+                      />
+                      <AvatarFallback>{profileData.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    {isSaving && (
+                      <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-full">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4">
+                    <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline">
+                          <Camera className="mr-2 h-4 w-4" />
+                          Change Avatar
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Choose an Avatar</DialogTitle>
+                          <DialogDescription>
+                            Select a cartoon avatar or upload your own image.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-4 gap-4 py-4">
+                          {cartoonAvatars.map((avatar, index) => (
+                            <Avatar
+                              key={index}
+                              className="h-20 w-20 mx-auto cursor-pointer"
+                              onClick={() => handleAvatarSelect(avatar)}
+                            >
+                              <AvatarImage src={avatar} alt={`Cartoon Avatar ${index + 1}`} />
+                            </Avatar>
+                          ))}
                         </div>
-                        <Input
-                          id="custom-avatar"
-                          type="file"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                          accept="image/*"
-                        />
-                      </Label>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                        <div className="flex justify-between items-center mt-4">
+                          <select
+                            value={selectedStyle}
+                            onChange={(e) => setSelectedStyle(e.target.value)}
+                            className="px-2 py-1 border rounded"
+                          >
+                            {AVATAR_STYLES.map((style) => (
+                              <option key={style} value={style}>
+                                {style}
+                              </option>
+                            ))}
+                          </select>
+                          <Button onClick={generateCartoonAvatars} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Refresh Avatars
+                          </Button>
+                        </div>
+                        <div className="flex justify-center mt-4">
+                          <Label htmlFor="custom-avatar" className="cursor-pointer">
+                            <div className="flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg hover:bg-secondary">
+                              <Upload className="mr-2 h-6 w-6" />
+                              <span>Upload custom image</span>
+                            </div>
+                            <Input
+                              id="custom-avatar"
+                              type="file"
+                              className="hidden"
+                              onChange={handleImageUpload}
+                              accept="image/*"
+                            />
+                          </Label>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                <form onSubmit={handleSubmit} className="flex-grow space-y-6 w-full max-w-md mx-auto">
+                  <Tabs defaultValue="personal" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                      <TabsTrigger value="contact">Contact Info</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="personal" className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-center block">Name</Label>
+                        <Input id="name" name="name" value={profileData.name} onChange={handleInputChange} className="w-full text-center" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="username" className="text-center block">Username</Label>
+                        <Input id="username" name="username" value={profileData.username} onChange={handleInputChange} className="w-full text-center" />
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="contact" className="space-y-4">
+                      {profileData.signInMethod === 'email' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-center block">Email</Label>
+                          <div className="flex items-center space-x-2">
+                            <Mail className="h-5 w-5 text-muted-foreground" />
+                            <Input id="email" name="email" value={encodeContact(profileData.email)} readOnly className="w-full bg-muted text-center" />
+                          </div>
+                        </div>
+                      )}
+                      {profileData.signInMethod === 'phone' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-center block">Phone</Label>
+                          <div className="flex items-center space-x-2">
+                            <Phone className="h-5 w-5 text-muted-foreground" />
+                            <Input id="phone" name="phone" value={encodeContact(profileData.phone)} readOnly className="w-full bg-muted text-center" />
+                          </div>
+                        </div>
+                      )}
+                      <p className="text-sm text-muted-foreground text-center">
+                        Contact information is partially hidden for security. To update, please contact support.
+                      </p>
+                    </TabsContent>
+                  </Tabs>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isSaving || !isProfileChanged}
+                  >
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Edit2 className="mr-2 h-4 w-4" />}
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </form>
               </div>
-            </div>
-            <form onSubmit={handleSubmit} className="flex-grow space-y-6">
-              <Tabs defaultValue="personal" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="personal">Personal Info</TabsTrigger>
-                  <TabsTrigger value="contact">Contact Info</TabsTrigger>
-                </TabsList>
-                <TabsContent value="personal" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" name="name" value={profileData.name} onChange={handleInputChange} className="w-full" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" value={profileData.username} onChange={handleInputChange} className="w-full" />
-                  </div>
-                </TabsContent>
-                <TabsContent value="contact" className="space-y-4">
-                  {profileData.signInMethod === 'email' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <div className="flex items-center space-x-2">
-                        <Mail className="h-5 w-5 text-muted-foreground" />
-                        <Input id="email" name="email" value={encodeContact(profileData.email)} readOnly className="w-full bg-muted" />
-                      </div>
-                    </div>
-                  )}
-                  {profileData.signInMethod === 'phone' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-5 w-5 text-muted-foreground" />
-                        <Input id="phone" name="phone" value={encodeContact(profileData.phone)} readOnly className="w-full bg-muted" />
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    Contact information is partially hidden for security. To update, please contact support.
-                  </p>
-                </TabsContent>
-              </Tabs>
-              <motion.div whileHover={{ scale: isProfileChanged ? 1.02 : 1 }} whileTap={{ scale: isProfileChanged ? 0.98 : 1 }}>
-                <Button 
-                  type="submit" 
-                  className="w-full" 
-                  disabled={isSaving || !isProfileChanged}
-                >
-                  {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Edit2 className="mr-2 h-4 w-4" />}
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </motion.div>
-            </form>
-          </div>
-        </CardContent>
+            </CardContent>
+          </>
+        )}
       </Card>
-    </motion.div>
+    </div>
   )
 }
