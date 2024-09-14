@@ -17,7 +17,7 @@ const About = () => {
       href: 'https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2',
       image: 'https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=dark'
     },
-    // Add more platforms here as needed
+    
   ];
 
   return (
