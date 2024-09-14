@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TextGenerateEffectDemo } from '../Components/ui/Abouttext';
-import { FaLinkedin, FaInstagram, FaGlobe, FaFileAlt, FaDiscord } from 'react-icons/fa';
+import { FaLinkedin, FaInstagram, FaGlobe, FaFileAlt, FaDiscord,FaGithub } from 'react-icons/fa';
 
 const About = () => {
   const githubUsername = 'soummyaanon';
@@ -52,7 +52,9 @@ const About = () => {
               <div className="flex flex-col items-center sm:items-start">
                 <h3 className="text-xl font-bold mb-2">Soumyaranjan Panda</h3>
                 <p className="text-gray-400 mb-4">Fullstack Developer / Tech Enthusiast</p>
+
                 <div className="flex space-x-4 mb-4">
+                  <SocialLink href="https://github.com/soummyaanon" icon={<FaGithub />} label="GitHub" />
                   <SocialLink href="https://www.linkedin.com/in/soumyaranjan-panda-33496a179/" icon={<FaLinkedin />} label="LinkedIn" />
                   <SocialLink href="https://www.instagram.com/anonymous__warior/" icon={<FaInstagram />} label="Instagram" />
                   <SocialLink href="https://soumya-ranjan.tech/" icon={<FaGlobe />} label="Portfolio" />
