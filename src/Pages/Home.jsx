@@ -122,7 +122,7 @@ export default function HomePage() {
         transition={{ delay: 0.6 }}
         className="text-center"
       >
-        <h2 className="text-xl font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
+        <h2 className="text-xl font-Orbitron font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
         <p className="text-lg text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
@@ -161,7 +161,7 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-lg text-center text-gray-200 max-w-2xl">
+        <p className="text-lg text-center font-Orbitron text-gray-200 max-w-2xl">
           Experience the future of note-taking with AI-powered insights and the noteX Assistance Bot.
         </p>
         <Button
@@ -200,7 +200,7 @@ export default function HomePage() {
             <div className="w-full max-w-7xl">
               <Card className={cn("w-full bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
                 <CardHeader className="pb-6">
-                  <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
+                  <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400  text-transparent bg-clip-text">
                     <Cover>
                       {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                     </Cover>
@@ -216,7 +216,7 @@ export default function HomePage() {
                     className="text-sm md:text-base lg:text-lg font-light text-center mt-12 text-gray-200 font-Orbitron"
                   />
                 <CardFooter className="justify-center mt-6 text-center px-4">
-                  <p className="text-sm md:text-base text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
+                  <p className="text-sm md:text-base font-Orbitron text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
               </Card>
               <div className="mt-8 space-y-8">

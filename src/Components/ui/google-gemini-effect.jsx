@@ -17,7 +17,7 @@ export const GoogleGeminiEffect = ({
   return (
     (<div className={cn("sticky top-80", className)}>
       <p
-        className="text-lg md:text-7xl font-normal pb-4 text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 to-neutral-600 dark:from-neutral-100 dark:to-neutral-300">
+        className="text-lg md:text-7xl font-Orbitron  pb-4 text-center bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 to-neutral-600 dark:from-neutral-100 dark:to-neutral-300">
         {title || `Powered by Google Gemini Pro`}
       </p>
       <p
