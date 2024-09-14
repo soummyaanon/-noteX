@@ -1,6 +1,6 @@
-# Contributor Guidelines for NoteX
+# NoteX Contributor Guidelines
 
-We’re excited to have you contribute to the NoteX project! Please follow these guidelines to ensure a smooth collaboration.
+Welcome! Follow these guidelines for a smooth collaboration.
 
 ## Table of Contents
 1. [Code of Conduct](#code-of-conduct)
@@ -16,27 +16,24 @@ We’re excited to have you contribute to the NoteX project! Please follow these
 
 ## Code of Conduct
 
-All contributors are expected to adhere to the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/). Be respectful, inclusive, and constructive.
+Adhere to the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/). Be respectful and inclusive.
 
 ## How to Contribute
 
 ### Reporting Bugs
 
-If you encounter a bug:
-- Search the [issues](https://github.com/soummyaanon/-noteX/issues) to check if the issue has already been reported.
-- If the issue hasn’t been reported, open a new one with detailed steps to reproduce it.
+- Search [issues](https://github.com/soummyaanon/-noteX/issues) for existing reports.
+- Open a new issue with detailed reproduction steps if not found.
 
 ### Feature Requests
 
-Have an idea to improve NoteX? We’d love to hear it!
-- Please open a feature request in the issues section and explain your idea and its potential use cases.
+- Open a feature request in the issues section with your idea and use cases.
 
 ### Submitting Code
 
-- Fork the repository and create a new branch (`git checkout -b feature-branch`).
-- Implement your changes, following our code style guidelines.
-- Make sure your code passes all tests.
-- Commit your changes with a clear commit message (`git commit -m "Add new feature XYZ"`).
-- Push your branch (`git push origin feature-branch`).
-- Submit a pull request (PR) and reference any relevant issues in the PR description.
-
+1. Fork the repo and create a new branch (`git checkout -b feature-branch`).
+2. Implement changes following code style guidelines.
+3. Ensure all tests pass.
+4. Commit with a clear message (`git commit -m "Add feature XYZ"`).
+5. Push your branch (`git push origin feature-branch`).
+6. Submit a pull request (PR) and reference relevant issues.
