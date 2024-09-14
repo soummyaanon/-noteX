@@ -9,12 +9,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog"
-import { Loader2, Camera, User, Settings, Mail, Phone, Edit2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { motion } from 'framer-motion'
+import { Loader2, Camera, User, Settings, Mail, Phone, Edit2, Upload, RefreshCw } from 'lucide-react'
 
-export default function Component() {
+const DICEBEAR_API_URL = 'https://api.dicebear.com/6.x'
+const AVATAR_STYLES = ['adventurer', 'avataaars', 'big-ears', 'bottts', 'croodles', 'fun-emoji', 'lorelei', 'miniavs', 'open-peeps', 'personas', 'pixel-art']
+
+export default function UserProfile() {
   const [user, setUser] = useState(null)
   const [profileData, setProfileData] = useState({ 
     name: '', 
@@ -28,6 +32,9 @@ export default function Component() {
   const [originalData, setOriginalData] = useState({})
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
+  const [cartoonAvatars, setCartoonAvatars] = useState([])
+  const [selectedStyle, setSelectedStyle] = useState(AVATAR_STYLES[0])
   const navigate = useNavigate()
 
   const fetchUserData = useCallback(async () => {
@@ -59,9 +66,55 @@ export default function Component() {
     fetchUserData()
   }, [fetchUserData])
 
+  const generateCartoonAvatars = useCallback(() => {
+    const newAvatars = Array.from({ length: 8 }, (_, i) => 
+      `${DICEBEAR_API_URL}/${selectedStyle}/png?size=200&seed=${Math.random()}`
+    )
+    setCartoonAvatars(newAvatars)
+  }, [selectedStyle])
+
+  useEffect(() => {
+    generateCartoonAvatars()
+  }, [generateCartoonAvatars])
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setProfileData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleAvatarSelect = async (avatarUrl) => {
+    setIsSaving(true)
+    try {
+      if (profileData.profileImageId) {
+        await deleteProfileImage(profileData.profileImageId)
+      }
+
+      const response = await fetch(avatarUrl)
+      const blob = await response.blob()
+      const file = new File([blob], 'avatar.png', { type: 'image/png' })
+
+      const uploadedFile = await uploadProfileImage(file)
+      const newImageUrl = await getProfileImage(uploadedFile.$id)
+
+      const updatedProfileData = {
+        ...profileData,
+        profileImageUrl: newImageUrl,
+        profileImageId: uploadedFile.$id
+      }
+
+      await updateUserProfile(user.$id, updatedProfileData)
+
+      setProfileData(updatedProfileData)
+      setOriginalData(updatedProfileData)
+
+      setIsAvatarDialogOpen(false)
+      alert('Avatar updated successfully!')
+    } catch (error) {
+      console.error('Error updating avatar:', error)
+      alert('Failed to update avatar. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleImageUpload = async (e) => {
@@ -77,23 +130,18 @@ export default function Component() {
       const uploadedFile = await uploadProfileImage(file)
       const newImageUrl = await getProfileImage(uploadedFile.$id)
 
-      setProfileData(prev => ({
-        ...prev,
-        profileImageUrl: newImageUrl,
-        profileImageId: uploadedFile.$id
-      }))
-
-      await updateUserProfile(user.$id, {
+      const updatedProfileData = {
         ...profileData,
-        profileImageId: uploadedFile.$id
-      })
-
-      setOriginalData(prev => ({
-        ...prev,
         profileImageUrl: newImageUrl,
         profileImageId: uploadedFile.$id
-      }))
+      }
 
+      await updateUserProfile(user.$id, updatedProfileData)
+
+      setProfileData(updatedProfileData)
+      setOriginalData(updatedProfileData)
+
+      setIsAvatarDialogOpen(false)
       alert('Profile image updated successfully!')
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -108,8 +156,8 @@ export default function Component() {
     setIsSaving(true)
     try {
       await updateUserProfile(user.$id, profileData)
-      alert('Profile updated successfully!')
       setOriginalData(profileData)
+      alert('Profile updated successfully!')
     } catch (error) {
       console.error('Error updating profile:', error)
       alert('Failed to update profile. Please try again.')
@@ -211,17 +259,69 @@ export default function Component() {
                 </Avatar>
               </motion.div>
               <div className="mt-4 text-center">
-                <Input 
-                  id="profileImage" 
-                  type="file" 
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={isSaving}
-                />
-                <Label htmlFor="profileImage" className="cursor-pointer inline-flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md transition duration-300">
-                  <Camera className="h-4 w-4" />
-                  <span>{isSaving ? 'Uploading...' : 'Change Photo'}</span>
-                </Label>
+                <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Camera className="mr-2 h-4 w-4" />
+                      Change Avatar
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Choose an Avatar</DialogTitle>
+                      <DialogDescription>
+                        Select a cartoon avatar or upload your own image.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-4 gap-4 py-4">
+                      {cartoonAvatars.map((avatar, index) => (
+                        <motion.div
+                          key={index}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="cursor-pointer"
+                          onClick={() => handleAvatarSelect(avatar)}
+                        >
+                          <Avatar className="h-20 w-20 mx-auto">
+                            <AvatarImage src={avatar} alt={`Cartoon Avatar ${index + 1}`} />
+                          </Avatar>
+                        </motion.div>
+                      ))}
+                    </div>
+                    <div className="flex justify-between items-center mt-4">
+                      <select
+                        value={selectedStyle}
+                        onChange={(e) => setSelectedStyle(e.target.value)}
+                        className="px-2 py-1 border rounded"
+                      >
+                        {AVATAR_STYLES.map((style) => (
+                          <option key={style} value={style}>
+                            {style}
+                          </option>
+                        ))}
+                      </select>
+                      <Button onClick={generateCartoonAvatars} variant="outline">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh Avatars
+                      </Button>
+                    </div>
+                    <div className="flex justify-center mt-4">
+                      <Label htmlFor="custom-avatar" className="cursor-pointer">
+                        <div className="flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg hover:bg-secondary">
+                          <Upload className="mr-2 h-6 w-6" />
+                          <span>Upload custom image</span>
+                        </div>
+                        <Input
+                          id="custom-avatar"
+                          type="file"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                        />
+                      </Label>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             <form onSubmit={handleSubmit} className="flex-grow space-y-6">
