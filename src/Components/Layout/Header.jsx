@@ -13,7 +13,7 @@ import { ModeToggle } from "../ui/mode-toggle"
 import { Menu } from "lucide-react"
 import { Progress } from "../ui/progress"
 import Logo from '../Logo/Logo'
-import { FiHome, FiLogIn, FiFileText, FiPlusSquare, FiUser, FiLogOut } from 'react-icons/fi'
+import { FiHome, FiLogIn, FiFileText, FiPlusSquare, FiUser, FiLogOut, FiInfo } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function Component({ user, setUser }) {
@@ -39,7 +39,7 @@ export default function Component({ user, setUser }) {
 
   useEffect(() => {
     fetchProfileImage()
-    const refreshInterval = setInterval(fetchProfileImage, 5000) // Refresh every 5 seconds
+    const refreshInterval = setInterval(fetchProfileImage, 1000) // Refresh every 5 seconds
     return () => clearInterval(refreshInterval)
   }, [fetchProfileImage])
 
@@ -115,20 +115,6 @@ export default function Component({ user, setUser }) {
             <Link to="/" className="flex items-center">
               <Logo />
             </Link>
-            <a
-              href="https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-notex&#0045;2"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-transform hover:scale-105"
-            >
-              <img
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=487462&theme=light"
-                alt="noteX - Discover the power of AI-powered note-taking with noteX | Product Hunt"
-                className="w-20 h-5 sm:w-32 sm:h-7"
-                width="128"
-                height="28"
-              />
-            </a>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
@@ -152,6 +138,10 @@ export default function Component({ user, setUser }) {
                   <DropdownMenuItem onClick={() => navigate('/profile')}>
                     <FiUser className="mr-2 h-4 w-4" />
                     Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/about')}>
+                    <FiInfo className="mr-2 h-4 w-4" />
+                    About
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <FiLogOut className="mr-2 h-4 w-4" />
@@ -182,6 +172,7 @@ export default function Component({ user, setUser }) {
               {user && (
                 <>
                   <NavItem to="/profile" icon={FiUser} label="Profile" />
+                  <NavItem to="/about" icon={FiInfo} label="About" />
                   <Button variant="ghost" size="sm" onClick={handleLogout} className="flex flex-col items-center">
                     <FiLogOut className="h-5 w-5" />
                     <span className="text-xs mt-1">Logout</span>

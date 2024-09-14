@@ -17,6 +17,7 @@ const NoteView = lazy(() => import('./Components/Notes/NoteView'));
 const Home = lazy(() => import('./Pages/Home'));
 const Editor = lazy(() => import('./Pages/Editor'));
 const UserProfile = lazy(() => import('./Components/Auth/UserProfile'));
+const About = lazy(() => import('./Pages/About')); // Added About page
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -76,6 +77,7 @@ export default function App() {
                     path="/profile"
                     element={user ? <UserProfile user={user} setUser={setUser} /> : <Navigate to="/login" />}
                   />
+                  <Route path="/about" element={<About />} /> {/* Added About route */}
                   <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
               </Suspense>
