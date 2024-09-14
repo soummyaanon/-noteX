@@ -38,6 +38,9 @@ export default function MinimalisticFooter() {
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
               <a href="https://youtu.be/21KHxlUH61I" target="_blank" rel="noopener noreferrer">FAQ</a>
             </Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+              <a href="https://aipure.ai/" target="_blank" rel="noopener noreferrer">AIPURE AI</a>
+            </Button>
           </div>
           <div className="flex flex-col sm:flex-row items-center sm:space-x-4 text-sm text-muted-foreground">
             <p>© {currentYear} noteX</p>
