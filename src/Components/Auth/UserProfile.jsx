@@ -254,7 +254,11 @@ export default function UserProfile() {
             <div className="flex-shrink-0">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Avatar className="h-40 w-40 mx-auto">
-                  <AvatarImage src={profileData.profileImageUrl} alt={profileData.name} />
+                  <AvatarImage 
+                    src={profileData.profileImageUrl} 
+                    alt={profileData.name} 
+                    onError={(e) => e.target.src = 'https://via.placeholder.com/150'} // Fallback image
+                  />
                   <AvatarFallback>{profileData.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               </motion.div>
