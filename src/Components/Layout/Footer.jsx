@@ -39,9 +39,6 @@ export default function MinimalisticFooter() {
               <a href="https://youtu.be/21KHxlUH61I" target="_blank" rel="noopener noreferrer">FAQ</a>
             </Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-              <a href="https://aipure.ai/" target="_blank" rel="noopener noreferrer">AIPURE AI</a>
-            </Button>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
               <a href="/about" rel="noopener noreferrer">About</a>
             </Button>
           </div>
