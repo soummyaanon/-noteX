@@ -23,8 +23,14 @@ const About = () => {
       name: 'Top Free AI Tools',
       href: 'https://topfreeaitools.com/ai/notex',
       image: 'https://ff65dcf08ebd5eb1c022b44dd88016ac.cdn.bubble.io/f1724746111294x515859147102912600/badge%20black.png?_gl=1*1w65k5q*_gcl_au*MTg3MzI0ODMyLjE3MjE2MjAzNjA.*_ga*NTIyODE4MzEyLjE3MDU5OTg0MTc.*_ga_BFPVR2DEE2*MTcyNDc0NTM2OS4yMjkuMS4xNzI0NzQ2ODQ2LjYuMC4w',
-      width: 230,
-      height: 54
+      
+   
+    },
+    {
+      name: 'AIPURE AI',
+      href: 'https://aipure.ai/',
+      image: 'https://via.placeholder.com/230x54.png?text=AIPURE+AI', // Placeholder image, replace with actual badge image if available
+
     }
   ];
 
@@ -105,7 +111,7 @@ const About = () => {
                     alt={`${platform.name} - Discover the power of AI-powered note-taking with noteX`} 
                     width={platform.width}
                     height={platform.height}
-                    className="h-14"
+                    className="h-14 w-auto rounded-lg object-cover p-2 bg-gray-200 dark:bg-gray-700"
                   />
                 </a>
               ))}
