@@ -1,8 +1,7 @@
-
 'use client'
 
-import React from 'react'
-import { motion, useMotionValue, useTransform } from 'framer-motion'
+import React, { useEffect, useState } from 'react'
+import { motion, useMotionValue, useTransform, useAnimation } from 'framer-motion'
 import { TextGenerateEffectDemo } from '../Components/ui/Abouttext'
 import { FaLinkedin, FaInstagram, FaGlobe, FaFileAlt, FaDiscord, FaGithub, FaStar } from 'react-icons/fa'
 import { useTheme } from 'next-themes'
@@ -10,6 +9,11 @@ import { useTheme } from 'next-themes'
 const About = () => {
   const githubUsername = 'soummyaanon'
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -34,8 +38,10 @@ const About = () => {
     }
   ]
 
+  if (!mounted) return null
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-indigo-900 text-gray-800 dark:text-white transition-colors duration-300">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-[#0d1117]' : 'bg-gray-100'} text-gray-800 dark:text-white transition-colors duration-300`}>
       <div className="container mx-auto px-4 py-16 space-y-24">
         <motion.section 
           initial="hidden"
@@ -43,7 +49,7 @@ const About = () => {
           variants={sectionVariants}
           className="max-w-4xl mx-auto"
         >
-          <h1 className="text-6xl font-bold font-Orbitron mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">About NoteX</h1>
+          <h1 className="text-6xl font-bold font-Orbitron mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">About noteX</h1>
           <div className="text-center text-xl">
             <TextGenerateEffectDemo />
           </div>
@@ -71,7 +77,7 @@ const About = () => {
                 <img 
                   src={platform.image} 
                   alt={`${platform.name} - Discover the power of AI-powered note-taking with noteX`} 
-                  className="h-16 w-full object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  className="h-12 w-auto object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 />
               </motion.a>
             ))}
@@ -182,6 +188,15 @@ const SocialLink = ({ href, icon, label }) => {
 }
 
 const GiveStarButton = ({ username }) => {
+  const controls = useAnimation()
+
+  useEffect(() => {
+    controls.start({
+      rotate: [0, 360],
+      transition: { duration: 2, repeat: Infinity, ease: "linear" }
+    })
+  }, [controls])
+
   return (
     <motion.a
       href={`https://github.com/soummyaanon/-noteX`}
@@ -191,11 +206,8 @@ const GiveStarButton = ({ username }) => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-      >
-        <FaStar className="mr-2 text-2xl" />
+      <motion.div animate={controls}>
+        <FaStar className="mr-2 text-xl" />
       </motion.div>
       <p className='font-semibold text-sm font-Orbitron'>
         Give Me A Star
@@ -205,4 +217,3 @@ const GiveStarButton = ({ username }) => {
 }
 
 export default About
-
