@@ -35,6 +35,11 @@ const About = () => {
       name: 'AIPURE AI',
       href: 'https://aipure.ai/',
       image: 'https://via.placeholder.com/230x54.png?text=AIPURE+AI'
+    },
+    {
+      name: 'Peerlist',
+      href: 'https://peerlist.io/somyaranjan/project/notex',
+      image: 'https://peerlist.io/images/Launch_Badge_Dark.svg'
     }
   ]
 
