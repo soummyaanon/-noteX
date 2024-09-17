@@ -177,7 +177,7 @@ export default function AnimatedLogin({ setUser }) {
                 {step === 'login' && (
                   <form onSubmit={handleSubmit(onSubmitLogin)} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="loginMethod" className="text-sm font-medium">Login Methods</Label>
+                      <Label htmlFor="loginMethod" className="text-sm font-medium">Login / Signup</Label>
                       <div className="flex space-x-2">
                         <Button
                           type="button"
