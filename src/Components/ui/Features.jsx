@@ -1,5 +1,5 @@
 import React from "react";
-import { MacbookScroll } from "@/components/ui/macbook-scroll";
+import { MacbookScroll } from "../ui/macbook-scroll";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaSquareXTwitter } from "react-icons/fa6";
 
