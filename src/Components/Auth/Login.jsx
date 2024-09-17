@@ -31,6 +31,9 @@ export default function AnimatedLogin({ setUser }) {
   const [securityPhrase, setSecurityPhrase] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(900);
   const [canResend, setCanResend] = useState(false);
+  const [otpInputStartTime, setOtpInputStartTime] = useState(null);
+  const [showOtpWarning, setShowOtpWarning] = useState(false);
+  const [showMethodSwitchSuggestion, setShowMethodSwitchSuggestion] = useState(false);
   const navigate = useNavigate();
   const otpRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
@@ -49,6 +52,24 @@ export default function AnimatedLogin({ setUser }) {
       setCanResend(true);
     }
   }, [timeRemaining]);
+
+  useEffect(() => {
+    let warningTimer;
+    let suggestionTimer;
+    if (step === 'otp' && otpInputStartTime) {
+      warningTimer = setTimeout(() => {
+        setShowOtpWarning(true);
+      }, 10000); // Show warning after 10 seconds
+
+      suggestionTimer = setTimeout(() => {
+        setShowMethodSwitchSuggestion(true);
+      }, 30000); // Show suggestion after 30 seconds
+    }
+    return () => {
+      clearTimeout(warningTimer);
+      clearTimeout(suggestionTimer);
+    };
+  }, [step, otpInputStartTime]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -72,6 +93,9 @@ export default function AnimatedLogin({ setUser }) {
       setStep('otp');
       setTimeRemaining(900);
       setCanResend(false);
+      setOtpInputStartTime(Date.now());
+      setShowOtpWarning(false);
+      setShowMethodSwitchSuggestion(false);
     } catch (error) {
       console.error('Failed to initiate login', error);
       setError(error.message || 'Failed to send OTP. Please try again.');
@@ -135,6 +159,12 @@ export default function AnimatedLogin({ setUser }) {
     if (e.key === 'Backspace' && index > 0 && e.target.value === '') {
       otpRefs[index - 1].current.focus();
     }
+  };
+
+  const switchLoginMethod = () => {
+    setLoginMethod(loginMethod === 'email' ? 'phone' : 'email');
+    setStep('login');
+    setShowMethodSwitchSuggestion(false);
   };
 
   return (
@@ -278,6 +308,23 @@ export default function AnimatedLogin({ setUser }) {
                         </div>
                         {errors.otp && <span className="text-destructive text-sm">All fields are required</span>}
                       </div>
+                      {showOtpWarning && (
+                        <Alert variant="warning" className="mt-4">
+                          <AlertDescription>
+                            It seems you haven't entered the OTP yet. Please check your {loginMethod === 'email' ? 'email' : 'phone'} for the code.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                      {showMethodSwitchSuggestion && (
+                        <Alert variant="info" className="mt-4">
+                          <AlertDescription>
+                            Having trouble receiving the OTP? Try switching to {loginMethod === 'email' ? 'phone' : 'email'} verification.
+                            <Button onClick={switchLoginMethod} variant="link" className="mt-2">
+                              Switch to {loginMethod === 'email' ? 'Phone' : 'Email'}
+                            </Button>
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <div className="text-center text-sm text-muted-foreground">
                         {canResend ? (
                           <Button
