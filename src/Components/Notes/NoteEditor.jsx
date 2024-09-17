@@ -11,7 +11,7 @@ import {
   Loader2, Bold, Italic, List, ListOrdered, Link, Image, Code, Quote, 
   Heading1, Heading2, Heading3, Sparkles, Menu, Save, Eye, Edit,
   ChevronDown, ChevronUp, X, Maximize2, Minimize2,
-  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Mic
+  AlignLeft, AlignCenter, AlignRight, Undo, Redo, Mic, Type
 } from 'lucide-react'
 import { Button } from "../ui/button"
 import {
@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Slider } from "../ui/slider"
 import { Switch } from "../ui/switch"
 import debounce from 'lodash.debounce'
@@ -28,7 +28,27 @@ import NoteXAssistant from '../AI/AIWritingAssistant'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useToast } from "../ui/use-toast"
 
+// Import Google Fonts
+import '@fontsource/caveat'
+import '@fontsource/dancing-script'
+import '@fontsource/indie-flower'
+import '@fontsource/pacifico'
+import '@fontsource/permanent-marker'
+import '@fontsource/shadows-into-light'
+import '@fontsource/amatic-sc'
+
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID
+
+const fontOptions = [
+  { name: 'Default', value: 'inherit' },
+  { name: 'Caveat', value: 'Caveat' },
+  { name: 'Dancing Script', value: 'Dancing Script' },
+  { name: 'Indie Flower', value: 'Indie Flower' },
+  { name: 'Pacifico', value: 'Pacifico' },
+  { name: 'Permanent Marker', value: 'Permanent Marker' },
+  { name: 'Shadows Into Light', value: 'Shadows Into Light' },
+  { name: 'Amatic SC', value: 'Amatic SC' },
+]
 
 export default function NoteEditor({ userId }) {
   const { noteId } = useParams()
@@ -53,10 +73,11 @@ export default function NoteEditor({ userId }) {
     finalTranscript: '',
   })
   const [isAutoSaveEnabled, setIsAutoSaveEnabled] = useState(false)
-  
+  const [selectedFont, setSelectedFont] = useState('inherit')
+
   const editorRef = useRef(null)
   const fullscreenRef = useRef(null)
-  const lastSavedRef = useRef({ title: '', content: '' })
+  const lastSavedRef = useRef({ title: '', content: '', selectedFont: 'inherit' })
   const recognitionRef = useRef(null)
   const { toast } = useToast()
 
@@ -84,8 +105,9 @@ export default function NoteEditor({ userId }) {
     try {
       const fetchedNote = await getDocument(NOTES_COLLECTION_ID, noteId)
       setNote({ title: fetchedNote.title, content: fetchedNote.content })
+      setSelectedFont(fetchedNote.selectedFont || 'inherit')
       setUndoStack([{ title: fetchedNote.title, content: fetchedNote.content }])
-      lastSavedRef.current = { title: fetchedNote.title, content: fetchedNote.content }
+      lastSavedRef.current = { title: fetchedNote.title, content: fetchedNote.content, selectedFont: fetchedNote.selectedFont || 'inherit' }
     } catch (error) {
       setError('Failed to fetch note. Please try again.')
     } finally {
@@ -142,8 +164,11 @@ export default function NoteEditor({ userId }) {
       })
     }
   }
+
   const handleSave = useCallback(async () => {
-    if (note.title === lastSavedRef.current.title && note.content === lastSavedRef.current.content) {
+    if (note.title === lastSavedRef.current.title && 
+        note.content === lastSavedRef.current.content && 
+        selectedFont === lastSavedRef.current.selectedFont) {
       return
     }
 
@@ -156,6 +181,7 @@ export default function NoteEditor({ userId }) {
         owner: userId,
         updated_at: new Date().toISOString(),
         isFavorite: false,
+        selectedFont: selectedFont,
       }
 
       if (noteId) {
@@ -165,7 +191,7 @@ export default function NoteEditor({ userId }) {
         const newNote = await createDocument(NOTES_COLLECTION_ID, noteData)
         navigate(`/notes/${newNote.$id}`, { replace: true })
       }
-      lastSavedRef.current = { ...note }
+      lastSavedRef.current = { ...note, selectedFont }
       setSaveStatus('Saved')
       setTimeout(() => setSaveStatus(''), 3000)
     } catch (error) {
@@ -174,17 +200,21 @@ export default function NoteEditor({ userId }) {
     } finally {
       setLoading(false)
     }
-  }, [note, userId, noteId, navigate])
+  }, [note, userId, noteId, navigate, selectedFont])
 
   const debouncedSave = useCallback(debounce(handleSave, 3000), [handleSave])
 
   useEffect(() => {
-    if (isAutoSaveEnabled && (note.title !== lastSavedRef.current.title || note.content !== lastSavedRef.current.content)) {
+    if (isAutoSaveEnabled && (
+      note.title !== lastSavedRef.current.title || 
+      note.content !== lastSavedRef.current.content ||
+      selectedFont !== lastSavedRef.current.selectedFont
+    )) {
       setSaveStatus('Saving...')
       debouncedSave()
     }
     return () => debouncedSave.cancel()
-  }, [note, debouncedSave, isAutoSaveEnabled])
+  }, [note, debouncedSave, isAutoSaveEnabled, selectedFont])
 
   const updateNote = useCallback((updates) => {
     setUndoStack(prevStack => [...prevStack, note])
@@ -194,6 +224,8 @@ export default function NoteEditor({ userId }) {
 
   const insertMarkdown = (markdownSymbol, placeholder = '') => {
     const textarea = editorRef.current
+    if (!textarea) return
+
     const { selectionStart, selectionEnd } = textarea
     const selectedText = note.content.substring(selectionStart, selectionEnd)
     const newContent = `${note.content.substring(0, selectionStart)}${markdownSymbol}${selectedText || placeholder}${markdownSymbol}${note.content.substring(selectionEnd)}`
@@ -274,6 +306,8 @@ export default function NoteEditor({ userId }) {
 
   const handleAlignment = (alignment) => {
     const textarea = editorRef.current
+    if (!textarea) return
+
     const { selectionStart, selectionEnd } = textarea
     const selectedText = note.content.substring(selectionStart, selectionEnd)
     const alignedText = `<div style="text-align: ${alignment}">${selectedText}</div>`
@@ -308,7 +342,7 @@ export default function NoteEditor({ userId }) {
     }
   }
 
-const markdownButtons = [
+  const markdownButtons = [
     { icon: Bold, action: () => insertMarkdown('**', 'bold text'), tooltip: 'Bold' },
     { icon: Italic, action: () => insertMarkdown('*', 'italic text'), tooltip: 'Italic' },
     { icon: Heading1, action: () => insertMarkdown('# ', 'Heading 1'), tooltip: 'Heading 1' },
@@ -323,6 +357,27 @@ const markdownButtons = [
     { icon: AlignLeft, action: () => handleAlignment('left'), tooltip: 'Align Left' },
     { icon: AlignCenter, action: () => handleAlignment('center'), tooltip: 'Align Center' },
     { icon: AlignRight, action: () => handleAlignment('right'), tooltip: 'Align Right' },
+    { 
+      icon: Type, 
+      action: () => {}, 
+      tooltip: 'Select Font',
+      dropdown: (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <Type className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {fontOptions.map((font) => (
+              <DropdownMenuItem key={font.value} onSelect={() => setSelectedFont(font.value)}>
+                <span style={{ fontFamily: font.value }}>{font.name}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
   ]
 
   return (
@@ -405,12 +460,14 @@ const markdownButtons = [
                 <div className="flex flex-wrap items-center justify-between mb-4 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
                   <div className="flex flex-wrap items-center space-x-1 mb-2 sm:mb-0">
                     <TooltipProvider>
-                      {markdownButtons.map(({ icon: Icon, action, tooltip }, index) => (
+                      {markdownButtons.map(({ icon: Icon, action, tooltip, dropdown }, index) => (
                         <Tooltip key={index}>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={action}>
-                              <Icon className="h-4 w-4" />
-                            </Button>
+                            {dropdown || (
+                              <Button variant="ghost" size="sm" onClick={action}>
+                                <Icon className="h-4 w-4" />
+                              </Button>
+                            )}
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>{tooltip}</p>
@@ -468,7 +525,7 @@ const markdownButtons = [
               {isPreview ? (
                 <div
                   className="prose prose-sm sm:prose dark:prose-invert max-w-none min-h-[200px] sm:min-h-[300px] md:min-h-[400px] overflow-auto mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner"
-                  style={{ fontSize: `${fontSize}px` }}
+                  style={{ fontSize: `${fontSize}px`, fontFamily: selectedFont }}
                   dangerouslySetInnerHTML={{ __html: preview }}
                 />
               ) : (
@@ -479,7 +536,7 @@ const markdownButtons = [
                     onChange={(e) => updateNote({ content: e.target.value })}
                     placeholder="Start writing your note here..."
                     className="min-h-[200px] sm:min-h-[300px] md:min-h-[400px] resize-none w-full p-4 bg-white dark:bg-gray-800 rounded-lg shadow-inner focus:ring-2 focus:ring-blue-500"
-                    style={{ fontSize: `${fontSize}px` }}
+                    style={{ fontSize: `${fontSize}px`, fontFamily: selectedFont }}
                   />
                   {speechRecognition.isListening && (
                     <motion.div

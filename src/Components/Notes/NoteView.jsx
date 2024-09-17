@@ -16,6 +16,15 @@ import { Toggle } from "../ui/toggle"
 import { motion, AnimatePresence } from 'framer-motion'
 import TextToSpeech from '../Text-Speach/TextToSpeech'
 
+// Import Google Fonts
+import '@fontsource/caveat'
+import '@fontsource/dancing-script'
+import '@fontsource/indie-flower'
+import '@fontsource/pacifico'
+import '@fontsource/permanent-marker'
+import '@fontsource/shadows-into-light'
+import '@fontsource/amatic-sc'
+
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID
 
 export default function Component() {
@@ -266,12 +275,18 @@ export default function Component() {
                 <TabsContent value="preview" className="mt-4">
                   <div 
                     className={`prose dark:prose-invert max-w-none ${zenMode ? 'text-base sm:text-lg leading-relaxed' : 'text-sm sm:text-base'}`} 
-                    style={{ textAlign: textAlignment }}
+                    style={{ 
+                      textAlign: textAlignment,
+                      fontFamily: note.selectedFont || 'inherit'
+                    }}
                     dangerouslySetInnerHTML={{ __html: marked(note.content || '') }} 
                   />
                 </TabsContent>
                 <TabsContent value="source" className="mt-4">
-                  <pre className={`p-2 sm:p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  <pre 
+                    className={`p-2 sm:p-4 rounded-md overflow-x-auto bg-muted ${zenMode ? 'text-xs sm:text-sm' : 'text-xs'}`}
+                    style={{ fontFamily: note.selectedFont || 'inherit' }}
+                  >
                     <code>{note.content || ''}</code>
                   </pre>
                 </TabsContent>

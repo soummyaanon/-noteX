@@ -10,6 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/amatic-sc": "^5.1.0",
+    "@fontsource/caveat": "^5.1.0",
+    "@fontsource/dancing-script": "^5.1.0",
+    "@fontsource/indie-flower": "^5.1.0",
+    "@fontsource/pacifico": "^5.1.0",
+    "@fontsource/permanent-marker": "^5.1.0",
+    "@fontsource/shadows-into-light": "^5.1.0",
     "@google/generative-ai": "^0.17.1",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.0",
