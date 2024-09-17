@@ -24,10 +24,10 @@ const Badge = () => (
 
 export function Feature() {
   return (
-    <div className="overflow-hidden dark:bg-[#0B0B0F] bg-white w-full">
+    <div className="bg-transparent dark:bg-opacity-50 w-full">
       <MacbookScroll
         title={
-          <h2 className=" font-bold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
+          <h2 className="font-bold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
             AI-Enhanced Note-Taking Revolution
           </h2>
         }
