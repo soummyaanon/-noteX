@@ -12,6 +12,7 @@ import { Cover } from "../Components/ui/cover";
 import { PulseLoader } from 'react-spinners';
 import InfiniteMovingCardsDemo from "../Components/ui/ReviewCard";
 import GoogleGeminiEffectDemo from "../Components/ui/Geminie";
+import Feature from '../Components/ui/Features';
 
 const FeatureIcon = React.memo(({ Icon }) => (
   <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
@@ -220,6 +221,7 @@ export default function HomePage() {
                 </CardFooter>
               </Card>
               <div className="mt-8 space-y-8">
+                <Feature />
                 <GoogleGeminiEffectDemo />
                 <InfiniteMovingCardsDemo />
               </div>
