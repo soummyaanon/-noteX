@@ -34,7 +34,7 @@ export function Feature() {
         badge={<Badge />}
         src={[
           { src: "/Featurevid.webm", type: "video/webm" },
-          { src: "/Featurevid.mp4", type: "video/mp4" }
+          { src: "/Featurevid.mkv", type: "video/mp4" }
         ]}
         showGradient={false}
         className="scale-[1.75] md:scale-150 lg:scale-[1.75]"
