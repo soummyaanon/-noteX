@@ -146,24 +146,24 @@ export default function AnimatedLogin({ setUser }) {
           transition={{ duration: 0.5, type: 'spring', stiffness: 100 }}
           className="relative z-10 transform-style-3d"
         >
-          <Card className="w-[500px] shadow-2xl bg-background/80 backdrop-blur-sm hover:shadow-3xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:rotate-y-5">
+          <Card className="w-[400px] shadow-2xl bg-background/80 backdrop-blur-sm hover:shadow-3xl transition-all duration-300 ease-in-out transform hover:scale-105">
             <CardHeader className="space-y-1">
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
               >
-                <CardTitle className="text-4xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   noteX
                 </CardTitle>
               </motion.div>
-              <CardDescription className="text-center text-lg">
+              <CardDescription className="text-center">
                 {step === 'login' && 'Access your account securely'}
                 {step === 'otp' && 'Enter the OTP sent to you'}
                 {step === 'profile' && 'Complete your profile'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 p-6">
+            <CardContent className="space-y-4">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={step}
@@ -173,37 +173,37 @@ export default function AnimatedLogin({ setUser }) {
                   transition={{ duration: 0.3, type: 'spring', stiffness: 100 }}
                 >
                   {step === 'login' && (
-                    <form onSubmit={handleSubmit(onSubmitLogin)} className="space-y-6">
+                    <form onSubmit={handleSubmit(onSubmitLogin)} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="loginMethod" className="text-lg font-medium">Login / Signup</Label>
-                        <div className="flex space-x-4">
+                        <Label htmlFor="loginMethod" className="text-sm font-medium">Login / Signup</Label>
+                        <div className="flex space-x-2">
                           <Button
                             type="button"
                             variant={loginMethod === 'email' ? 'default' : 'outline'}
                             onClick={() => setLoginMethod('email')}
-                            className="flex-1 text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5"
+                            className="flex-1 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg"
                           >
-                            <Mail className="mr-2 h-6 w-6" /> Email
+                            <Mail className="mr-2 h-4 w-4" /> Email
                           </Button>
                           <Button
                             type="button"
                             variant={loginMethod === 'phone' ? 'default' : 'outline'}
                             onClick={() => setLoginMethod('phone')}
-                            className="flex-1 text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5"
+                            className="flex-1 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg"
                           >
-                            <Phone className="mr-2 h-6 w-6" /> Phone
+                            <Phone className="mr-2 h-4 w-4" /> Phone
                           </Button>
                         </div>
                       </div>
                       {loginMethod === 'email' ? (
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-lg font-medium">Email</Label>
+                          <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-4 h-6 w-6 text-muted-foreground" />
+                            <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                             <Input
                               id="email"
                               placeholder="your.email@example.com"
-                              className="pl-12 py-6 text-lg transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
+                              className="pl-10 transition-all duration-200 ease-in-out focus:shadow-lg"
                               {...register('email', { 
                                 required: 'Email is required',
                                 pattern: {
@@ -218,10 +218,10 @@ export default function AnimatedLogin({ setUser }) {
                       ) : (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="countryCode" className="text-lg font-medium">Country Code</Label>
+                            <Label htmlFor="countryCode" className="text-sm font-medium">Country Code</Label>
                             <select
                               id="countryCode"
-                              className="w-full bg-background border border-input rounded-md p-3 text-lg transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
+                              className="w-full bg-background border border-input rounded-md p-2 transition-all duration-200 ease-in-out focus:shadow-lg"
                               value={countryCode}
                               onChange={(e) => setCountryCode(e.target.value)}
                             >
@@ -233,13 +233,13 @@ export default function AnimatedLogin({ setUser }) {
                             </select>
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="phoneNumber" className="text-lg font-medium">Phone Number</Label>
+                            <Label htmlFor="phoneNumber" className="text-sm font-medium">Phone Number</Label>
                             <div className="relative">
-                              <Phone className="absolute left-3 top-4 h-6 w-6 text-muted-foreground" />
+                              <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                               <Input
                                 id="phoneNumber"
                                 placeholder="Phone Number"
-                                className="pl-12 py-6 text-lg transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
+                                className="pl-10 transition-all duration-200 ease-in-out focus:shadow-lg"
                                 {...register('phoneNumber', { 
                                   required: 'Phone number is required',
                                   pattern: {
@@ -253,22 +253,22 @@ export default function AnimatedLogin({ setUser }) {
                           </div>
                         </>
                       )}
-                      <Button className="w-full text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5" type="submit">
-                        Send OTP <Zap className="ml-2 h-6 w-6" />
+                      <Button className="w-full transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg" type="submit">
+                        Send OTP <Zap className="ml-2 h-4 w-4" />
                       </Button>
                     </form>
                   )}
                   {step === 'otp' && (
-                    <form onSubmit={handleSubmit(onSubmitOTP)} className="space-y-6">
-                      <div className="space-y-4">
-                        <Label htmlFor="otp" className="text-lg font-medium">One-Time Password</Label>
+                    <form onSubmit={handleSubmit(onSubmitOTP)} className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="otp" className="text-sm font-medium">One-Time Password</Label>
                         <div className="flex justify-between">
                           {[0, 1, 2, 3, 4, 5].map((index) => (
                             <Input
                               key={index}
                               type="text"
                               maxLength={1}
-                              className="w-16 h-16 text-center text-2xl transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-110 hover:rotate-y-5"
+                              className="w-12 h-12 text-center text-xl transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
                               {...register(`otp.${index}`, { required: true })}
                               onChange={(e) => handleOtpChange(index, e)}
                               onKeyDown={(e) => handleKeyDown(index, e)}
@@ -278,15 +278,15 @@ export default function AnimatedLogin({ setUser }) {
                         </div>
                         {errors.otp && <span className="text-destructive text-sm">All fields are required</span>}
                       </div>
-                      <div className="text-center text-lg text-muted-foreground">
+                      <div className="text-center text-sm text-muted-foreground">
                         {canResend ? (
                           <Button
                             onClick={() => handleSubmit(onSubmitLogin)()}
                             type="button"
                             variant="outline"
-                            className="mt-2 text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5"
+                            className="mt-2 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg"
                           >
-                            Resend OTP <RefreshCw className="ml-2 h-6 w-6" />
+                            Resend OTP <RefreshCw className="ml-2 h-4 w-4" />
                           </Button>
                         ) : (
                           <>
@@ -296,21 +296,21 @@ export default function AnimatedLogin({ setUser }) {
                           </>
                         )}
                       </div>
-                      <Button className="w-full text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5" type="submit">
-                        Verify OTP <ArrowRight className="ml-2 h-6 w-6" />
+                      <Button className="w-full transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg" type="submit">
+                        Verify OTP <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </form>
                   )}
                   {step === 'profile' && (
-                    <form onSubmit={handleSubmit(onSubmitProfile)} className="space-y-6">
+                    <form onSubmit={handleSubmit(onSubmitProfile)} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name" className="text-lg font-medium">Name</Label>
+                        <Label htmlFor="name" className="text-sm font-medium">Name</Label>
                         <div className="relative">
-                          <User className="absolute left-3 top-4 h-6 w-6 text-muted-foreground" />
+                          <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                           <Input
                             id="name"
                             placeholder="Your full name"
-                            className="pl-12 py-6 text-lg transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
+                            className="pl-10 transition-all duration-200 ease-in-out focus:shadow-lg"
                             {...register('name', { 
                               required: 'Name is required',
                               minLength: {
@@ -323,13 +323,13 @@ export default function AnimatedLogin({ setUser }) {
                         {errors.name && <span className="text-destructive text-sm">{errors.name.message}</span>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="username" className="text-lg font-medium">Username</Label>
+                        <Label htmlFor="username" className="text-sm font-medium">Username</Label>
                         <div className="relative">
-                          <AtSign className="absolute left-3 top-4 h-6 w-6 text-muted-foreground" />
+                          <AtSign className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                           <Input
                             id="username"
                             placeholder="Choose a username"
-                            className="pl-12 py-6 text-lg transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
+                            className="pl-10 transition-all duration-200 ease-in-out focus:shadow-lg"
                             {...register('username', { 
                               required: 'Username is required',
                               minLength: {
@@ -341,8 +341,8 @@ export default function AnimatedLogin({ setUser }) {
                         </div>
                         {errors.username && <span className="text-destructive text-sm">{errors.username.message}</span>}
                       </div>
-                      <Button className="w-full text-lg py-6 transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg hover:rotate-y-5" type="submit">
-                        Complete Profile <ArrowRight className="ml-2 h-6 w-6" />
+                      <Button className="w-full transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg" type="submit">
+                        Complete Profile <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </form>
                   )}
