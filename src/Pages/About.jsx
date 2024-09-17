@@ -29,8 +29,7 @@ const About = () => {
     {
       name: 'Top Free AI Tools',
       href: 'https://topfreeaitools.com/ai/notex',
-      image: 'https://ff65dcf08ebd5eb1c022b44dd88016ac.cdn.bubble.io/f1724746116087x632750678197528400/badge%20white.png?_gl=1*1wvcbnr*_gcl_au*MTg3MzI0ODMyLjE3MjE2MjAzNjA.*_ga*NTIyODE4MzEyLjE3MDU5OTg0MTc.*_ga_BFPVR2DEE2*MTcyNDc0NTM2OS4yMjkuMS4xNzI0NzQ2MjY2LjYwLjAuMA..',
-
+      image: 'https://ff65dcf08ebd5eb1c022b44dd88016ac.cdn.bubble.io/f1724746116087x632750678197528400/badge%20white.png?_gl=1*1wvcbnr*_gcl_au*MTg3MzI0ODMyLjE3MjE2MjAzNjA.*_ga*NTIyODE4MzEyLjE3MDU5OTg0MTc.*_ga_BFPVR2DEE2*MTcyNDc0NTM2OS4yMjkuMS4xNzI0NzQ2MjY2LjYwLjAuMA..'
     },
     {
       name: 'AIPURE AI',
@@ -41,6 +40,13 @@ const About = () => {
       name: 'Peerlist',
       href: 'https://peerlist.io/somyaranjan/project/notex',
       image: 'https://peerlist.io/images/Launch_Badge_Dark.svg'
+    },
+    {
+      name: 'Product Hunt Top Post',
+      href: 'https://www.producthunt.com/posts/notex-2?embed=true&utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-notex&#0045;2',
+      image: 'https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=487462&theme=light&period=weekly&topic_id=237',
+      width: 250,
+      height: 54
     }
   ]
 
@@ -83,6 +89,8 @@ const About = () => {
                 <img 
                   src={platform.image} 
                   alt={`${platform.name} - Discover the power of AI-powered note-taking with noteX`} 
+                  width={platform.width}
+                  height={platform.height}
                   className="h-12 w-auto object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                 />
               </motion.a>
