@@ -33,7 +33,7 @@ const About = () => {
     },
     {
       name: 'AIPURE AI',
-      href: 'https://aipure.ai/',
+      href: 'https://aipure.ai/products/notex',
       image: 'https://via.placeholder.com/230x54.png?text=AIPURE+AI'
     },
     {
