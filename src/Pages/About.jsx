@@ -5,6 +5,8 @@ import { motion, useMotionValue, useTransform, useAnimation } from 'framer-motio
 import { TextGenerateEffectDemo } from '../Components/ui/Abouttext'
 import { FaLinkedin, FaInstagram, FaGlobe, FaFileAlt, FaDiscord, FaGithub, FaStar } from 'react-icons/fa'
 import { useTheme } from 'next-themes'
+import tool from '../assets/toolpilot-badge-b.png'
+
 
 const About = () => {
   const githubUsername = 'soummyaanon'
@@ -51,7 +53,7 @@ const About = () => {
     {
       name: 'ToolPilot',
       href: 'https://www.toolpilot.ai',
-      image: 'https://www.toolpilot.ai/cdn/shop/files/tp-w-h_1ee473cf-96cc-48df-8040-bf9a275ae3af_1280x354_crop_center.svg?v=1695883533',
+      image: tool,
       width: 230,
       height: 54
     }
