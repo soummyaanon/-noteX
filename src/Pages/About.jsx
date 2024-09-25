@@ -47,6 +47,13 @@ const About = () => {
       image: 'https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=487462&theme=light&period=weekly&topic_id=237',
       width: 250,
       height: 54
+    },
+    {
+      name: 'ToolPilot',
+      href: 'https://www.toolpilot.ai',
+      image: 'https://www.toolpilot.ai/cdn/shop/files/tp-w-h_1ee473cf-96cc-48df-8040-bf9a275ae3af_1280x354_crop_center.svg?v=1695883533',
+      width: 230,
+      height: 54
     }
   ]
 
