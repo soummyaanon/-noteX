@@ -15,7 +15,7 @@ import GoogleGeminiEffectDemo from "../Components/ui/Geminie";
 import Feature from '../Components/ui/Features';
 
 const FeatureIcon = React.memo(({ Icon }) => (
-  <Icon className="w-4 h-4 text-primary" aria-hidden="true" />
+  <Icon className="w-4 h-4 text-primary dark:text-white" aria-hidden="true" />
 ));
 
 const features = [
@@ -56,7 +56,7 @@ const notLoggedInWords = [
 const FeatureCard = React.memo(({ feature, onClick }) => (
   <motion.div
     whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-    className="bg-blue-900/30 rounded-lg p-4 backdrop-blur-md cursor-pointer group"
+    className="bg-white/10 dark:bg-blue-900/30 rounded-lg p-4 backdrop-blur-md cursor-pointer group"
     onClick={onClick}
   >
     <div className="flex items-center space-x-3">
@@ -64,8 +64,8 @@ const FeatureCard = React.memo(({ feature, onClick }) => (
         <FeatureIcon Icon={feature.Icon} />
       </div>
       <div>
-        <h3 className="font-semibold font-Orbitron text-xs text-gray-200 group-hover:text-white transition-colors">{feature.title}</h3>
-        <p className="text-xs font-Orbitron text-gray-400 group-hover:text-gray-200 transition-colors">{feature.description}</p>
+        <h3 className="font-semibold font-Orbitron text-xs text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors">{feature.title}</h3>
+        <p className="text-xs font-Orbitron text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors">{feature.description}</p>
       </div>
     </div>
   </motion.div>
@@ -123,12 +123,12 @@ export default function HomePage() {
         transition={{ delay: 0.6 }}
         className="text-center"
       >
-        <h2 className="text-xl font-Orbitron font-semibold text-gray-200 mb-3">Ready to boost your productivity?</h2>
-        <p className="text-sm font-semibold font-Orbitron text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
+        <h2 className="text-xl font-Orbitron font-semibold text-gray-800 dark:text-gray-200 mb-3">Ready to boost your productivity?</h2>
+        <p className="text-sm font-semibold font-Orbitron text-gray-600 dark:text-gray-300 mb-5">Start by creating a new note or accessing your recent work.</p>
         <Button
           onClick={handleNavigation('/new-note')}
           size="lg"
-          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-white"
         >
           <Pencil className="mr-2 h-5 w-5" aria-hidden="true" />
           Create New Note
@@ -162,13 +162,13 @@ export default function HomePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <p className="text-lg text-center font-Orbitron text-gray-200 max-w-2xl">
+        <p className="text-lg text-center font-Orbitron text-gray-800 dark:text-gray-200 max-w-2xl">
           Experience the future of note-taking with AI-powered insights and the noteX Assistance Bot.
         </p>
         <Button
           onClick={handleNavigation('/login')}
           size="lg"
-          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300"
+          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-white"
         >
           Get Started
           <span className="ml-2" aria-hidden="true">→</span>
@@ -178,7 +178,7 @@ export default function HomePage() {
   ), [handleNavigation]);
 
   return (
-    <AuroraBackground class = "z-auto" >
+    <AuroraBackground class="z-auto">
       <AnimatePresence>
         {authState.isLoading ? (
           <motion.div
@@ -199,25 +199,24 @@ export default function HomePage() {
             className={cn("min-h-screen flex items-center justify-center p-4")}
           >
             <div className="w-full max-w-7xl">
-              <Card className={cn("w-full bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
+              <Card className={cn("w-full bg-white/70 dark:bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
                 <CardHeader className="pb-6">
-                  <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-400 to-purple-400  text-transparent bg-clip-text">
+                  <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
                     <Cover>
                       {authState.isLoggedIn ? `Welcome back, ${authState.userName}!` : "Welcome to noteX"}
                     </Cover>
                   </CardTitle>
-
                 </CardHeader>
                 <CardContent className="px-4 sm:px-6 md:px-8 lg:px-12">
                   {authState.isLoggedIn ? renderLoggedInContent() : renderNotLoggedInContent()}
                 </CardContent>
                 <FlipWords
-                    words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
-                    duration={3000}
-                    className="text-sm md:text-base lg:text-lg font-light text-center mt-12 text-gray-200 font-Orbitron"
-                  />
+                  words={authState.isLoggedIn ? loggedInWords : notLoggedInWords}
+                  duration={3000}
+                  className="text-sm md:text-base lg:text-lg font-light text-center mt-12 text-gray-800 dark:text-gray-200 font-Orbitron"
+                />
                 <CardFooter className="justify-center mt-6 text-center px-4">
-                  <p className="text-sm md:text-base font-Orbitron text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
+                  <p className="text-sm md:text-base font-Orbitron text-gray-600 dark:text-gray-400">Discover the power of AI-powered note-taking with noteX</p>
                 </CardFooter>
               </Card>
               <div className="mt-8 space-y-8">
