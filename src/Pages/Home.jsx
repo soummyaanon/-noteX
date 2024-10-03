@@ -199,7 +199,7 @@ export default function HomePage() {
             className={cn("min-h-screen flex items-center justify-center p-4")}
           >
             <div className="w-full max-w-7xl">
-              <Card className={cn("w-full bg-white/70 dark:bg-blue-900/20 backdrop-blur-lg shadow-xl overflow-hidden")}>
+              <Card className={cn("w-full bg-transparent border-none shadow-none")}>
                 <CardHeader className="pb-6">
                   <CardTitle className="text-xl md:text-2xl lg:text-3xl font-light font-Orbitron text-center bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-transparent bg-clip-text">
                     <Cover>
