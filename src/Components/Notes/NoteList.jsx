@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate, Routes, Route } from 'react-router-dom';
+import { Link, useNavigate, Routes, Route, useSearchParams } from 'react-router-dom';
 import { listDocuments, toggleNoteFavorite, getCurrentUser } from '../../Services/appwrite';
 import { Query } from 'appwrite';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2, Pencil, MoreVertical } from "lucide-react";
+import { Plus, FileText, ArrowUpDown, Search, BarChart2, Star, Loader2, Share2, Pencil, MoreVertical, X } from "lucide-react";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Input } from "../ui/input";
@@ -22,6 +22,8 @@ import NoteView from './NoteView';
 const NOTES_COLLECTION_ID = import.meta.env.VITE_APPWRITE_COLLECTION_ID;
 
 const NoteList = ({ userId }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'all');
   const [notes, setNotes] = useState([]);
   const [error, setError] = useState(null);
   const [sortBy, setSortBy] = useState('updatedAt');
@@ -77,6 +79,10 @@ const NoteList = ({ userId }) => {
     loadModel();
     fetchUserData();
   }, [fetchNotes, loadModel, fetchUserData]);
+
+  useEffect(() => {
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
 
   const performSemanticSearch = useCallback(async () => {
     if (!model || !searchQuery) return;
@@ -178,6 +184,10 @@ const NoteList = ({ userId }) => {
     navigate(`/edit-note/${noteId}`);
   };
 
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+  };
+
   if (error) return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardContent className="pt-6">
@@ -188,18 +198,18 @@ const NoteList = ({ userId }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.5 }}
       className="w-full min-h-screen p-2 sm:p-4 md:p-6 lg:p-8"
     >
-      <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 w-full h-full">
-        <CardHeader>
+      <div className="max-w-7xl mx-auto">
+        <CardHeader className="px-0">
           <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
             {authState.isLoggedIn ? `${authState.userName}'s Notes` : "Your Notes"}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
             <Button asChild className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80 text-primary-foreground">
               <Link to="/new-note">
@@ -230,16 +240,27 @@ const NoteList = ({ userId }) => {
                 placeholder="Search notes..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
+                className="pr-20"
               />
-              <Button 
-                className="absolute right-1 top-1/2 -translate-y-1/2"
-                size="sm"
-                onClick={performSemanticSearch}
-                disabled={isSearching || !searchQuery}
-              >
-                {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              </Button>
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 flex">
+                {searchQuery && (
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery('')}
+                    className="mr-1"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button 
+                  size="sm"
+                  onClick={performSemanticSearch}
+                  disabled={isSearching || !searchQuery}
+                >
+                  {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
             <Button
               variant="outline"
@@ -285,7 +306,7 @@ const NoteList = ({ userId }) => {
           </AnimatePresence>
           <Routes>
             <Route path="/" element={
-              <Tabs defaultValue="all" className="w-full">
+              <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="all">All Notes</TabsTrigger>
                   <TabsTrigger value="favorites">Favorites</TabsTrigger>
@@ -315,10 +336,10 @@ const NoteList = ({ userId }) => {
             <Route path=":noteId" element={<NoteView />} />
           </Routes>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="px-0">
           <p className="text-xs sm:text-sm text-muted-foreground">Total notes: {notes.length}</p>
         </CardFooter>
-      </Card>
+      </div>
     </motion.div>
   );
 };
@@ -328,10 +349,11 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[...Array(6)].map((_, index) => (
-          <Card key={index}>
-            <CardContent className="pt-6">
+          <Card key={index} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardContent className="p-4">
               <Skeleton className="h-6 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-4 w-1/2 mb-4" />
+              <Skeleton className="h-20 w-full" />
             </CardContent>
           </Card>
         ))}
@@ -339,9 +361,18 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
     );
   }
 
-  if (notes.length ===  0) {
+  if (notes.length === 0) {
     return (
-      <p className="text-center text-muted-foreground">No notes found. Try a different search or create a new note!</p>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="text-center text-muted-foreground p-8 bg-secondary/10 rounded-lg"
+      >
+        <FileText className="mx-auto h-12 w-12 mb-4 text-muted-foreground/50" />
+        <p className="text-lg font-medium mb-2">No notes found</p>
+        <p>Try a different search or create a new note!</p>
+      </motion.div>
     );
   }
 
@@ -353,14 +384,14 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
             key={note.$id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ duration: 0.3 }}
           >
-            <Card className="h-full flex flex-col">
-              <CardContent className="pt-6 flex-grow">
+            <Card className="h-full flex flex-col shadow-md hover:shadow-lg transition-shadow duration-300">
+              <CardContent className="p-4 flex-grow">
                 <div className="flex items-start justify-between mb-2">
-                  <Link to={`/notes/${note.$id}`} className="flex items-center">
-                    <FileText className="mr-2 h-4 w-4" />
-                    <span className="text-base sm:text-lg font-semibold line-clamp-1">{note.title}</span>
+                  <Link to={`/notes/${note.$id}`} className="flex items-center group">
+                    <FileText className="mr-2 h-4 w-4 text-primary group-hover:text-primary/80 transition-colors" />
+                    <span className="text-base sm:text-lg font-semibold line-clamp-1 group-hover:text-primary/80 transition-colors">{note.title}</span>
                   </Link>
                   <div className="flex items-center">
                     <TooltipProvider>
@@ -370,6 +401,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
                             variant="ghost"
                             size="sm"
                             onClick={() => handleToggleFavorite(note.$id)}
+                            className="hover:bg-secondary/20 transition-colors"
                           >
                             <Star className={`h-4 w-4 ${note.isFavorite ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
                           </Button>
@@ -381,7 +413,7 @@ const NoteGrid = ({ notes, isLoading, handleToggleFavorite, handleShare, handleE
                     </TooltipProvider>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="hover:bg-secondary/20 transition-colors">
                           <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
