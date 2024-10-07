@@ -35,6 +35,35 @@ const generateText = async (model, prompt, maxLength = MAX_CHARS, temperature = 
   }
 };
 
+export const calculateAndCreateNote = async (prompt) => {
+  try {
+    const modelInstance = genAI.getGenerativeModel({ model: MODELS.TEXT_GENERATION });
+    const result = await modelInstance.generateContent({
+      contents: [{ role: 'user', parts: [{ text: `
+Calculate the following and create a detailed note explaining the process and result:
+${prompt}
+
+Please follow this format:
+1. Restate the calculation request
+2. Show the step-by-step calculation process
+3. Provide the final result
+4. Explain the significance or context of this calculation (if applicable)
+5. Suggest any related calculations or further explorations
+      ` }] }],
+      generationConfig: {
+        maxOutputTokens: MAX_TOKENS,
+        temperature: 0.3, // Lower temperature for more deterministic results
+        topP: 0.95,
+        topK: 40,
+      },
+    });
+    return result.response.text().slice(0, MAX_CHARS);
+  } catch (error) {
+    console.error('Error calculating and creating note:', error);
+    throw new Error('Failed to calculate and create note. Please try again.');
+  }
+};
+
 export const getAISuggestion = (prompt) =>
   generateText(MODELS.TEXT_GENERATION, `Generate a comprehensive and well-structured note outline based on this prompt. Include main topics and subtopics: ${prompt}`, MAX_CHARS, 0.8);
 
