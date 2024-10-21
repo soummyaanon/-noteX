@@ -16,6 +16,9 @@ import Logo from '../Logo/Logo'
 import { FiHome, FiLogIn, FiFileText, FiPlusSquare, FiUser, FiLogOut, FiInfo } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 
+
+
+
 export default function Component({ user, setUser }) {
   const navigate = useNavigate()
   const location = useLocation()
