@@ -35,6 +35,7 @@ export default function AnimatedLogin({ setUser }) {
   const [showOtpWarning, setShowOtpWarning] = useState(false);
   const [showMethodSwitchSuggestion, setShowMethodSwitchSuggestion] = useState(false);
   const navigate = useNavigate();
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const otpRefs = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()];
 
   useEffect(() => {
@@ -102,14 +103,14 @@ export default function AnimatedLogin({ setUser }) {
     }
   };
 
-  const onSubmitOTP = async (data) => {
+  const onSubmitOTP = async () => {
     setError('');
-    const otp = Object.values(data.otp).join('');
+    const otpValue = otp.join('');
     try {
       if (loginMethod === 'email') {
-        await createSessionWithEmailOTP(userId, otp);
+        await createSessionWithEmailOTP(userId, otpValue);
       } else {
-        await createSessionWithPhoneAuth(userId, otp);
+        await createSessionWithPhoneAuth(userId, otpValue);
       }
       const user = await getCurrentUser();
       if (user) {
@@ -128,38 +129,37 @@ export default function AnimatedLogin({ setUser }) {
     }
   };
 
-  const onSubmitProfile = async (data) => {
-    setError('');
-    try {
-      await updateUserProfile(userId, { name: data.name, username: data.username });
-      const user = await getCurrentUser();
-      if (user) {
-        setUser(user);
-        navigate('/notes');
-      } else {
-        throw new Error('Failed to fetch user information');
-      }
-    } catch (error) {
-      console.error('Profile update failed', error);
-      setError(error.message || 'Failed to update profile. Please try again.');
-    }
-  };
 
-  const handleOtpChange = (index, e) => {
-    const value = e.target.value;
-    if (value.length <= 1) {
-      setValue(`otp.${index}`, value);
-      if (value.length === 1 && index < 5) {
-        otpRefs[index + 1].current.focus();
-      }
+
+  const handleOtpChange = (index, value) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+    if (value.length === 1 && index < 5) {
+      otpRefs[index + 1].current.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && index > 0 && e.target.value === '') {
+    if (e.key === 'Backspace' && index > 0 && otp[index] === '') {
       otpRefs[index - 1].current.focus();
     }
   };
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
+    const newOtp = [...otp];
+    pastedData.forEach((char, index) => {
+      if (index < 6) {
+        newOtp[index] = char;
+      }
+    });
+    setOtp(newOtp);
+    otpRefs[Math.min(pastedData.length, 5)].current.focus();
+  };
+
+
+
 
   const switchLoginMethod = () => {
     setLoginMethod(loginMethod === 'email' ? 'phone' : 'email');
@@ -293,16 +293,17 @@ export default function AnimatedLogin({ setUser }) {
                       <div className="space-y-2">
                         <Label htmlFor="otp" className="text-sm font-medium">One-Time Password</Label>
                         <div className="flex justify-between">
-                          {[0, 1, 2, 3, 4, 5].map((index) => (
+                          {otp.map((digit, index) => (
                             <Input
                               key={index}
                               type="text"
                               maxLength={1}
-                              className="w-12 h-12 text-center text-xl transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
-                              {...register(`otp.${index}`, { required: true })}
-                              onChange={(e) => handleOtpChange(index, e)}
+                              value={digit}
+                              onChange={(e) => handleOtpChange(index, e.target.value)}
                               onKeyDown={(e) => handleKeyDown(index, e)}
+                              onPaste={handlePaste}
                               ref={otpRefs[index]}
+                              className="w-12 h-12 text-center text-xl transition-all duration-200 ease-in-out focus:shadow-lg transform hover:scale-105"
                             />
                           ))}
                         </div>
@@ -393,7 +394,7 @@ export default function AnimatedLogin({ setUser }) {
                       </Button>
                     </form>
                   )}
-                </motion.div>
+                  </motion.div>
               </AnimatePresence>
               {error && (
                 <motion.div
