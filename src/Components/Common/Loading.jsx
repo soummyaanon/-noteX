@@ -33,9 +33,7 @@ const NoteXSimpleLoader = () => {
       <h1 className={`text-4xl font-bold mb-2 ${textColor}`}>
         noteX
       </h1>
-      <p className={`text-xl font-semibold mb-6 ${subTextColor}`}>
-        powered by Gemini Pro
-      </p>
+
       <PuffLoader color={isDarkMode ? "#ffffff" : "#000000"} size={60} />
       <div className="w-64 mt-6">
         <Progress value={progress} className="w-full" />
