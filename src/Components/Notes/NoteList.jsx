@@ -203,7 +203,7 @@ const NoteList = ({ userId }) => {
       transition={{ duration: 0.5 }}
       className="w-full min-h-screen p-2 sm:p-4 md:p-6 lg:p-8"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl md:px-1 mx-auto">
         <CardHeader className="px-0">
           <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
             {authState.isLoggedIn ? `${authState.userName}'s Notes` : "Your Notes"}
