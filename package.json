@@ -63,7 +63,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-commonjs": "^29.0.3",
     "@types/node": "^22.5.2",
     "@types/offscreencanvas": "^2019.7.3",
     "@types/react": "^18.3.3",
@@ -71,7 +71,7 @@
     "@types/webgl-ext": "^0.0.37",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.19",
-    "eslint": "^8.57.0",
+    "eslint": "^10.5.0",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
